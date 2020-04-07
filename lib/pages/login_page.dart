@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:ap/api/course_helper.dart';
 import 'package:ap/config/constants.dart';
+import 'package:ap/pages/course_page.dart';
 import 'package:ap/utils/ocr_utils.dart';
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/general_response.dart';
@@ -323,6 +324,11 @@ class LoginPageState extends State<LoginPage> {
         }
         Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
         ApUtils.showToast(context, app.loginSuccess);
+        await CourseHelper.instance.checkLogin();
+        ApUtils.pushCupertinoStyle(
+          context,
+          CoursePage(),
+        );
       } else
         ApUtils.showToast(context, app.unknown);
     }
