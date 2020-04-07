@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:ap_common/callback/general_callback.dart';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
+import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/widgets.dart';
 import 'package:html/parser.dart' as html;
 import 'package:cookie_jar/cookie_jar.dart';
@@ -48,7 +50,7 @@ class CourseHelper {
 
   Future<String> getToken() async {
     var response = await dio.get(
-      BASE_PATH,
+      '$BASE_PATH$LOGIN',
       options: Options(
         responseType: ResponseType.plain,
       ),
@@ -58,10 +60,11 @@ class CourseHelper {
     return input[0].attributes['value'];
   }
 
-  Future<dynamic> login({
-    String username,
-    String password,
-    String validationCode,
+  Future<GeneralResponse> login({
+    @required String username,
+    @required String password,
+    @required String validationCode,
+    GeneralCallback callback,
   }) async {
     try {
       final option = Options(
@@ -80,11 +83,26 @@ class CourseHelper {
         },
       );
       debugPrint(response.data);
+      return GeneralResponse.success();
     } on DioError catch (e) {
       if (e.type == DioErrorType.RESPONSE && e.response.statusCode == 302) {
         print(e.response.data);
         print(e.response.isRedirect);
+        if (e.response.data.toString().contains('Error.html'))
+          callback?.onError(
+            GeneralResponse(
+              statusCode: 401,
+              message: 'Fail',
+            ),
+          );
+        else if (e.response.data.toString().contains('Object moved'))
+          return GeneralResponse.success();
+        else
+          callback?.onFailure(e);
+      } else {
+        callback?.onFailure(e);
       }
     }
+    return null;
   }
 }
