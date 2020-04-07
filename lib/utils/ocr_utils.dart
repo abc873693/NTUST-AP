@@ -8,7 +8,7 @@ import 'package:path/path.dart';
 import 'package:tesseract_ocr/tesseract_ocr.dart';
 
 class OcrUtils {
-  static Future<void> extractText({
+  static Future<String> extractText({
     @required Uint8List bodyBytes,
   }) async {
     String extractText;
