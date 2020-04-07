@@ -26,8 +26,8 @@ class CourseHelper {
       _instance = CourseHelper();
       cookieJar = CookieJar();
       dio = Dio();
-      cookieJar
-          .loadForRequest(Uri.parse("https://courseselection.ntust.edu.tw/"));
+      dio.interceptors.add(CookieManager(cookieJar));
+      cookieJar.loadForRequest(Uri.parse(BASE_PATH));
     }
     return _instance;
   }
