@@ -44,6 +44,7 @@ class LoginPageState extends State<LoginPage> {
     super.initState();
     _getPreference();
     _getValidationCode();
+    //TODO get system storage permission
   }
 
   @override
@@ -180,26 +181,26 @@ class LoginPageState extends State<LoginPage> {
       Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          GestureDetector(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                Theme(
-                  data: ThemeData(
-                    unselectedWidgetColor: Colors.white,
-                  ),
-                  child: Checkbox(
-                    activeColor: Colors.white,
-                    checkColor: ApTheme.of(context).blue,
-                    value: isAutoLogin,
-                    onChanged: _onAutoLoginChanged,
-                  ),
-                ),
-                Text(app.autoLogin, style: TextStyle(color: Colors.white))
-              ],
-            ),
-            onTap: () => _onAutoLoginChanged(!isAutoLogin),
-          ),
+//          GestureDetector(
+//            child: Row(
+//              mainAxisAlignment: MainAxisAlignment.end,
+//              children: <Widget>[
+//                Theme(
+//                  data: ThemeData(
+//                    unselectedWidgetColor: Colors.white,
+//                  ),
+//                  child: Checkbox(
+//                    activeColor: Colors.white,
+//                    checkColor: ApTheme.of(context).blue,
+//                    value: isAutoLogin,
+//                    onChanged: _onAutoLoginChanged,
+//                  ),
+//                ),
+//                Text(app.autoLogin, style: TextStyle(color: Colors.white))
+//              ],
+//            ),
+//            onTap: () => _onAutoLoginChanged(!isAutoLogin),
+//          ),
           GestureDetector(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -278,8 +279,7 @@ class LoginPageState extends State<LoginPage> {
     var username = Preferences.getString(Constants.PREF_USERNAME, '');
     var password = '';
     if (isRememberPassword) {
-      password =
-          Preferences.getStringSecurity(Constants.PREF_PASSWORD, '');
+      password = Preferences.getStringSecurity(Constants.PREF_PASSWORD, '');
     }
     setState(() {
       _username.text = username;
