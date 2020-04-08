@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:ap/api/course_helper.dart';
@@ -11,6 +12,7 @@ import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ap_common/widgets/progress_dialog.dart';
 
@@ -337,7 +339,9 @@ class LoginPageState extends State<LoginPage> {
   void _getValidationCode() async {
     bodyBytes = await CourseHelper.instance.getValidationImage();
     setState(() {});
-    _validationCode.text = await OcrUtils.extractText(bodyBytes: bodyBytes);
-    setState(() {});
+    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+      _validationCode.text = await OcrUtils.extractText(bodyBytes: bodyBytes);
+      setState(() {});
+    }
   }
 }
