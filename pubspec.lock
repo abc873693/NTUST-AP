@@ -5,8 +5,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "v0.0.6"
-      resolved-ref: "2fb79cd6f28327acaab6a39fffae91e16f5b38e2"
+      ref: HEAD
+      resolved-ref: "73c7ce2e709b28134acc8300f93d4776bda604fe"
       url: "https://github.com/abc873693/ap_common"
     source: git
     version: "0.0.6"
