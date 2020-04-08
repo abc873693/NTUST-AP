@@ -1,4 +1,4 @@
-package com.ntust.ap
+package com.ntust.ntust_ap
 
 import androidx.annotation.NonNull;
 import io.flutter.embedding.android.FlutterActivity

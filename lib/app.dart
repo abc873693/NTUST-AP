@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:ap/pages/login_page.dart';
-import 'package:ap/widgets/share_data_widget.dart';
+import 'package:ntust_ap/pages/login_page.dart';
+import 'package:ntust_ap/widgets/share_data_widget.dart';
 import 'package:ap_common/models/ap_support_language.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';

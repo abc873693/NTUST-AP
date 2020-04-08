@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:ap/api/course_helper.dart';
-import 'package:ap/config/constants.dart';
-import 'package:ap/pages/course_page.dart';
-import 'package:ap/utils/ocr_utils.dart';
+import 'package:ntust_ap/api/course_helper.dart';
+import 'package:ntust_ap/config/constants.dart';
+import 'package:ntust_ap/pages/course_page.dart';
+import 'package:ntust_ap/utils/ocr_utils.dart';
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/general_response.dart';
 import 'package:ap_common/resources/ap_theme.dart';

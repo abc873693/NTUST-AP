@@ -1,4 +1,4 @@
-import 'package:ap/api/course_helper.dart';
+import 'package:ntust_ap/api/course_helper.dart';
 import 'package:ap_common/models/course_data.dart';
 import 'package:ap_common/scaffold/course_scaffold.dart';
 import 'package:flutter/material.dart';
