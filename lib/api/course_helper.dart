@@ -62,11 +62,11 @@ class CourseHelper {
     return input[0].attributes['value'];
   }
 
-  Future<GeneralResponse> login({
+  Future<void> login({
     @required String username,
     @required String password,
     @required String validationCode,
-    GeneralCallback callback,
+    GeneralCallback<GeneralResponse> callback,
   }) async {
     try {
       final option = Options(
@@ -84,29 +84,51 @@ class CourseHelper {
           'VerifyCode': validationCode,
         },
       );
-      debugPrint(response.data);
-      return GeneralResponse.success();
+//      debugPrint(response.data);
+      final rawHtml = response.data;
+      GeneralResponse generalResponse;
+      if (rawHtml.contains("圖形驗證碼錯誤")) {
+        generalResponse = GeneralResponse(
+          statusCode: 4001,
+          message: 'Validate Code Error',
+        );
+      } else if (rawHtml.contains("密碼輸入錯誤")) {
+        generalResponse = GeneralResponse(
+          statusCode: 4002,
+          message: 'Password Error',
+        );
+      } else if (rawHtml.contains("學號輸入錯誤")) {
+        generalResponse = GeneralResponse(
+          statusCode: 4003,
+          message: 'Username Error',
+        );
+      } else
+        generalResponse = GeneralResponse(
+          statusCode: 4000,
+          message: 'Unkown Error',
+        );
+      callback?.onError(generalResponse);
     } on DioError catch (e) {
       if (e.type == DioErrorType.RESPONSE && e.response.statusCode == 302) {
         print(e.response.data);
         print(e.response.isRedirect);
-        if (e.response.data.toString().contains('Error.html'))
+        String rawHtml = e.response.data.toString();
+        if (rawHtml.contains('Error.html'))
           callback?.onError(
             GeneralResponse(
-              statusCode: 401,
-              message: 'Fail',
+              statusCode: 4000,
+              message: 'Unkown Error',
             ),
           );
         else if (e.response.data.toString().contains('Object moved')) {
-          print(e.response.data);
-          return GeneralResponse.success();
+          print(callback?.onSuccess(GeneralResponse.success()).runtimeType);
+//          callback?.onSuccess(GeneralResponse.success());
         } else
           callback?.onFailure(e);
       } else {
         callback?.onFailure(e);
       }
     }
-    return null;
   }
 
   Future<CourseData> getCourseTable() async {

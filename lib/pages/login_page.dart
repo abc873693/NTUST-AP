@@ -302,37 +302,55 @@ class LoginPageState extends State<LoginPage> {
         barrierDismissible: false,
       );
       Preferences.setString(Constants.PREF_USERNAME, _username.text);
-      var response = await CourseHelper.instance.login(
+      CourseHelper.instance.login(
         username: _username.text,
         password: _password.text,
         validationCode: _validationCode.text,
-        callback: GeneralCallback(
+        callback: GeneralCallback<GeneralResponse>(
           onError: (GeneralResponse e) {
-            if (e.statusCode == 400) ApUtils.showToast(context, app.loginFail);
+            Navigator.pop(context);
+            var message = "";
+            print(e.statusCode);
+            switch (e.statusCode) {
+              case 4001:
+                message = "驗證碼錯誤";
+                break;
+              case 4002:
+                message = "密碼輸入錯誤";
+                break;
+              case 4003:
+                message = "學號輸入錯誤";
+                break;
+              case 4000:
+              default:
+                message = app.unknown;
+                break;
+            }
+            ApUtils.showToast(context, message);
           },
           onFailure: (DioError e) {
+            Navigator.pop(context);
             ApUtils.showToast(context, ApLocalizations.dioError(context, e));
+          },
+          onSuccess: (GeneralResponse data) async {
+            Navigator.pop(context);
+            Preferences.setString(Constants.PREF_USERNAME, _username.text);
+            if (isRememberPassword) {
+              await Preferences.setStringSecurity(
+                Constants.PREF_PASSWORD,
+                _password.text,
+              );
+            }
+            Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
+            ApUtils.showToast(context, app.loginSuccess);
+            await CourseHelper.instance.checkLogin();
+            ApUtils.pushCupertinoStyle(
+              context,
+              CoursePage(),
+            );
           },
         ),
       );
-      Navigator.pop(context);
-      if (response != null) {
-        Preferences.setString(Constants.PREF_USERNAME, _username.text);
-        if (isRememberPassword) {
-          await Preferences.setStringSecurity(
-            Constants.PREF_PASSWORD,
-            _password.text,
-          );
-        }
-        Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
-        ApUtils.showToast(context, app.loginSuccess);
-        await CourseHelper.instance.checkLogin();
-        ApUtils.pushCupertinoStyle(
-          context,
-          CoursePage(),
-        );
-      } else
-        ApUtils.showToast(context, app.unknown);
     }
   }
 
