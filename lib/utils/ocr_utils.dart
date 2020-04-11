@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -6,44 +5,11 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
-import 'package:tesseract_ocr/tesseract_ocr.dart';
 import 'package:tflite/tflite.dart';
 import 'package:image/image.dart' as img;
 
-class OcrUtils {
-  static Future<String> extractText({
-    @required Uint8List bodyBytes,
-  }) async {
-    String extractText;
-    try {
-      final Directory directory = await getTemporaryDirectory();
-      final String imagePath = join(
-        directory.path,
-        "tmp.jpg",
-      );
-      var start = DateTime.now();
-//      var grayscaleImage = image.grayscale(image.Image.fromBytes(
-//          78, 22, bodyBytes,
-//          channels: image.Channels.rgb));
-//      bodyBytes = grayscaleImage.getBytes(format: image.Format.rgb).getBytes(format: image.Format.rgb);
-      await File(imagePath).writeAsBytes(bodyBytes);
-      extractText = await TesseractOcr.extractText(
-        imagePath,
-        language: "eng",
-      );
-      final replaceText = extractText.replaceAll(RegExp("[^A-Z^0-9]"), '');
-      var end = DateTime.now();
-      final processTime =
-          end.millisecondsSinceEpoch - start.millisecondsSinceEpoch;
-      print('process time = $processTime ms');
-      return replaceText;
-    } on PlatformException {
-//      extractText = 'Failed to extract text';
-    }
-    return '';
-  }
-
-  static Future<String> bytTfLite({
+class ValidateCodeUtils {
+  static Future<String> extractByTfLite({
     @required Uint8List bodyBytes,
   }) async {
     final digitsCount = 6;
@@ -79,13 +45,8 @@ class OcrUtils {
       start = DateTime.now();
       final w = (imageWidth ~/ digitsCount), h = imageHeight;
       for (var i = 0; i < digitsCount; i++) {
-        var target = img.copyCrop(
-          crop,
-          (imageWidth ~/ digitsCount) * i,
-          0,
-          w,
-          h,
-        );
+        var target =
+            img.copyCrop(crop, (imageWidth ~/ digitsCount) * i, 0, w, h);
         var recognitions = await Tflite.runModelOnBinary(
             binary: imageToByteListFloat32(target, w, h, 127.5, 255.0),
             // required

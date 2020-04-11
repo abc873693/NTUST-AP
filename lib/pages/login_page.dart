@@ -340,7 +340,8 @@ class LoginPageState extends State<LoginPage> {
     bodyBytes = await CourseHelper.instance.getValidationImage();
     setState(() {});
     if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-      _validationCode.text = await OcrUtils.bytTfLite(bodyBytes: bodyBytes);
+      _validationCode.text =
+          await ValidateCodeUtils.extractByTfLite(bodyBytes: bodyBytes);
       setState(() {});
     }
   }

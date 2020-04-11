@@ -35,7 +35,6 @@ dependencies:
   dio_cookie_manager: 1.0.0
   image: 2.1.4
   html: ^0.14.0+2
-  tesseract_ocr: 0.3.0
   tflite: 1.0.5
 
 dev_dependencies:
