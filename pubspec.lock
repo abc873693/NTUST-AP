@@ -6,10 +6,19 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "73c7ce2e709b28134acc8300f93d4776bda604fe"
+      resolved-ref: "0263d22299dcc40eb6b3607d7bd6c1a156592e27"
       url: "https://github.com/abc873693/ap_common"
     source: git
     version: "0.0.6"
+  ap_common_plugin:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: "8b5feecd3c3e35edadce98ebf4c4d2e2122fd60d"
+      url: "https://github.com/abc873693/ap_common_plugin"
+    source: git
+    version: "0.0.1"
   archive:
     dependency: transitive
     description:
