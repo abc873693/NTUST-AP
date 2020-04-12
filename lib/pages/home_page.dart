@@ -20,7 +20,9 @@ import 'package:ap_common/models/new_response.dart';
 import 'package:ap_common/models/user_info.dart';
 import 'package:ap_common/widgets/yes_no_dialog.dart';
 import 'package:ntust_ap/api/course_helper.dart';
+import 'package:ntust_ap/api/github_helper.dart';
 import 'package:ntust_ap/config/constants.dart';
+import 'package:ntust_ap/resourses/ap_assets.dart';
 import 'package:ntust_ap/utils/app_localizations.dart';
 import 'package:ntust_ap/widgets/share_data_widget.dart';
 
@@ -41,7 +43,7 @@ class HomePageState extends State<HomePage> {
   AppLocalizations app;
   ApLocalizations ap;
 
-  HomeState state = HomeState.empty;
+  HomeState state = HomeState.loading;
 
   bool isLogin = false;
 
@@ -241,39 +243,30 @@ class HomePageState extends State<HomePage> {
   }
 
   _getAllNews() async {
-//    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-//      RemoteConfig remoteConfig = await RemoteConfig.instance;
-//      await remoteConfig.fetch(expiration: const Duration(seconds: 10));
-//      await remoteConfig.activateFetched();
-//      String rawString = remoteConfig.getString(Constants.NEWS_DATA);
-//      newsList = NewsResponse.fromRawJson(rawString).data;
-//    } else {
-//      newsList = await Helper.instance.getNews(
-//        callback: GeneralCallback(
-//          onError: (GeneralResponse e) {
-//            setState(() {
-//              state = HomeState.error;
-//            });
-//          },
-//          onFailure: (DioError e) {
-//            setState(() {
-//              state = HomeState.error;
-//            });
-//            ApUtils.handleDioError(context, e);
-//          },
-//        ),
-//      );
-//    }
-//    setState(() {
-//      if (newsList == null || newsList.length == 0)
-//        state = HomeState.empty;
-//      else {
-//        newsList.sort((a, b) {
-//          return b.weight.compareTo(a.weight);
-//        });
-//        state = HomeState.finish;
-//      }
-//    });
+    GitHubHelper.instance.getNews(
+      callback: GeneralCallback(
+        onError: (GeneralResponse e) {
+          setState(() => state = HomeState.error);
+        },
+        onFailure: (DioError e) {
+          setState(() => state = HomeState.error);
+          ApUtils.handleDioError(context, e);
+        },
+        onSuccess: (List<News> data) {
+          newsList = data;
+          setState(() {
+            if (newsList == null || newsList.length == 0)
+              state = HomeState.empty;
+            else {
+              newsList.sort((a, b) {
+                return b.weight.compareTo(a.weight);
+              });
+              state = HomeState.finish;
+            }
+          });
+        },
+      ),
+    );
   }
 
   void _showInformationDialog() {
