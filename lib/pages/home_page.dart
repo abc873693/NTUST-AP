@@ -22,6 +22,7 @@ import 'package:ap_common/widgets/yes_no_dialog.dart';
 import 'package:ntust_ap/api/course_helper.dart';
 import 'package:ntust_ap/api/github_helper.dart';
 import 'package:ntust_ap/config/constants.dart';
+import 'package:ntust_ap/pages/setting_page.dart';
 import 'package:ntust_ap/resourses/ap_assets.dart';
 import 'package:ntust_ap/utils/app_localizations.dart';
 import 'package:ntust_ap/widgets/share_data_widget.dart';
@@ -166,11 +167,11 @@ class HomePageState extends State<HomePage> {
               ],
             ),
           ),
-//          DrawerItem(
-//            icon: ApIcon.settings,
-//            title: app.settings,
-//            page: SettingPage(),
-//          ),
+          DrawerItem(
+            icon: ApIcon.settings,
+            title: ap.settings,
+            page: SettingPage(),
+          ),
           if (isLogin)
             ListTile(
               leading: Icon(
