@@ -32,10 +32,10 @@ class _CoursePageState extends State<CoursePage> {
   }
 
   void _getCourse() async {
+    courseData = CourseData.load('latest');
+    if (courseData != null) setState(() => _state = CourseState.finish);
     courseData = await CourseHelper.instance.getCourseTable();
     courseData.save('latest');
-    setState(() {
-      _state = CourseState.finish;
-    });
+    setState(() => _state = CourseState.finish);
   }
 }
