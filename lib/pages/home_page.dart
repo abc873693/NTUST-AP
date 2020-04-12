@@ -136,7 +136,7 @@ class HomePageState extends State<HomePage> {
             icon: ApIcon.face,
             title: ap.about,
             page: AboutUsPage(
-              assetImage: 'assets/images/nsysu.webp',
+              assetImage: ImageAssets.ntust,
               githubName: 'NKUST-ITC',
               email: 'abc873693@gmail.com',
               appLicense: app.aboutOpenSourceContent,
