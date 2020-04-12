@@ -25,6 +25,7 @@ import 'package:ntust_ap/config/constants.dart';
 import 'package:ntust_ap/pages/setting_page.dart';
 import 'package:ntust_ap/resourses/ap_assets.dart';
 import 'package:ntust_ap/utils/app_localizations.dart';
+import 'package:ntust_ap/utils/ocr_utils.dart';
 import 'package:ntust_ap/widgets/share_data_widget.dart';
 
 import 'study/course_page.dart';
@@ -45,6 +46,8 @@ class HomePageState extends State<HomePage> {
   ApLocalizations ap;
 
   HomeState state = HomeState.loading;
+
+  var validationCode;
 
   bool isLogin = false;
 
@@ -338,18 +341,27 @@ class HomePageState extends State<HomePage> {
   _login() async {
     var username = Preferences.getString(Constants.PREF_USERNAME, '');
     var password = Preferences.getStringSecurity(Constants.PREF_PASSWORD, '');
+    var bodyBytes = await CourseHelper.instance.getValidationImage();
+    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+      validationCode =
+          await ValidateCodeUtils.extractByTfLite(bodyBytes: bodyBytes);
+    }
     CourseHelper.instance.login(
       username: username,
       password: password,
-      validationCode: "",
+      validationCode: validationCode,
       callback: GeneralCallback(
-        onError: (GeneralResponse e) {
-          //TODO error handle
+        onError: (GeneralResponse e) async {
+          if (e.statusCode == 4001) {
+            print('4001');
+            _login();
+          }
         },
         onFailure: (DioError e) {
-          //TODO error handle
+          ApUtils.showToast(context, ApLocalizations.dioError(context, e));
         },
-        onSuccess: (GeneralResponse data) {
+        onSuccess: (GeneralResponse data) async {
+          await CourseHelper.instance.checkLogin();
           _homeKey.currentState.showBasicHint(text: ap.loginSuccess);
           setState(() {
             ShareDataWidget.of(context).data.username = username;

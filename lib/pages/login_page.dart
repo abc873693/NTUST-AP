@@ -114,8 +114,8 @@ class LoginPageState extends State<LoginPage> {
               value: isAutoLogin,
               onChanged: (value) => setState(
                 () {
-                  isRememberPassword = value;
-                  if (!isRememberPassword) isAutoLogin = false;
+                  isAutoLogin = value;
+                  isRememberPassword = isAutoLogin;
                   Preferences.setBool(Constants.PREF_AUTO_LOGIN, isAutoLogin);
                   Preferences.setBool(
                       Constants.PREF_REMEMBER_PASSWORD, isRememberPassword);
@@ -189,26 +189,35 @@ class LoginPageState extends State<LoginPage> {
         password: _password.text,
         validationCode: _validationCode.text,
         callback: GeneralCallback<GeneralResponse>(
-          onError: (GeneralResponse e) {
+          onError: (GeneralResponse e) async {
             Navigator.pop(context);
-            var message = "";
-            print(e.statusCode);
-            switch (e.statusCode) {
-              case 4001:
-                message = "驗證碼錯誤";
-                break;
-              case 4002:
-                message = "密碼輸入錯誤";
-                break;
-              case 4003:
-                message = "學號輸入錯誤";
-                break;
-              case 4000:
-              default:
-                message = app.unknown;
-                break;
+            if (e.statusCode == 4001) {
+              print('4001');
+              bodyBytes = await CourseHelper.instance.getValidationImage();
+              if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+                _validationCode.text = await ValidateCodeUtils.extractByTfLite(
+                    bodyBytes: bodyBytes);
+              }
+              _login();
+            } else {
+              var message = "";
+              switch (e.statusCode) {
+                case 4001:
+                  message = "驗證碼錯誤";
+                  break;
+                case 4002:
+                  message = "密碼輸入錯誤";
+                  break;
+                case 4003:
+                  message = "學號輸入錯誤";
+                  break;
+                case 4000:
+                default:
+                  message = app.unknown;
+                  break;
+              }
+              ApUtils.showToast(context, message);
             }
-            ApUtils.showToast(context, message);
           },
           onFailure: (DioError e) {
             Navigator.pop(context);
@@ -225,6 +234,7 @@ class LoginPageState extends State<LoginPage> {
             }
             Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
             ApUtils.showToast(context, app.loginSuccess);
+            //TODO record validation error times
             await CourseHelper.instance.checkLogin();
             Navigator.of(context).pop(true);
           },
