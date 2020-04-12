@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:ntust_ap/pages/home_page.dart';
 import 'package:ntust_ap/pages/login_page.dart';
+import 'package:ntust_ap/utils/app_localizations.dart';
 import 'package:ntust_ap/widgets/share_data_widget.dart';
 import 'package:ap_common/models/ap_support_language.dart';
 import 'package:ap_common/resources/ap_theme.dart';
@@ -55,7 +57,7 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
 //          onGenerateTitle: (context) => AppLocalizations.of(context).appName,
           debugShowCheckedModeBanner: false,
           routes: <String, WidgetBuilder>{
-            Navigator.defaultRouteName: (context) => LoginPage(),
+            Navigator.defaultRouteName: (context) => HomePage(),
             LoginPage.routerName: (context) => LoginPage(),
           },
           theme: ApTheme.light,
@@ -79,6 +81,7 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
               return Locale(languageCode);
           },
           localizationsDelegates: [
+            const AppLocalizationsDelegate(),
             const ApLocalizationsDelegate(),
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,

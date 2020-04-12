@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import 'package:ap_common/scaffold/login_scaffold.dart';
 import 'package:ntust_ap/api/course_helper.dart';
 import 'package:ntust_ap/config/constants.dart';
-import 'package:ntust_ap/pages/course_page.dart';
+import 'package:ntust_ap/pages/study/course_page.dart';
 import 'package:ntust_ap/utils/ocr_utils.dart';
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/general_response.dart';
@@ -226,10 +226,7 @@ class LoginPageState extends State<LoginPage> {
             Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
             ApUtils.showToast(context, app.loginSuccess);
             await CourseHelper.instance.checkLogin();
-            ApUtils.pushCupertinoStyle(
-              context,
-              CoursePage(),
-            );
+            Navigator.of(context).pop(true);
           },
         ),
       );

@@ -21,7 +21,6 @@ class _CoursePageState extends State<CoursePage> {
 
   @override
   Widget build(BuildContext context) {
-//    CourseHelper.instance.getCourseTable();
     return CourseScaffold(
       state: _state,
       courseData: courseData,
