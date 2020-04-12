@@ -5,17 +5,17 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: HEAD
-      resolved-ref: "0263d22299dcc40eb6b3607d7bd6c1a156592e27"
+      ref: "v0.0.7"
+      resolved-ref: "3dc3ce01c20024d31a5ab45aa01912e37a6c58d8"
       url: "https://github.com/abc873693/ap_common"
     source: git
-    version: "0.0.6"
+    version: "0.0.7"
   ap_common_plugin:
     dependency: "direct main"
     description:
       path: "."
-      ref: HEAD
-      resolved-ref: "8b5feecd3c3e35edadce98ebf4c4d2e2122fd60d"
+      ref: "v0.0.1"
+      resolved-ref: "35486806b23f7715af7af003493ea1ae7e43d894"
       url: "https://github.com/abc873693/ap_common_plugin"
     source: git
     version: "0.0.1"

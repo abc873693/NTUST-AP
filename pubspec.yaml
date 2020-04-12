@@ -28,13 +28,13 @@ dependencies:
   ap_common:
     git:
       url: https://github.com/abc873693/ap_common
-#      ref: v0.0.6
+      ref: v0.0.7
   #    path: ../../GitHub-NKUST-ITC/ap_common
   ap_common_plugin:
     git:
       url: https://github.com/abc873693/ap_common_plugin
-    #      ref: v0.0.6
-    #    path: ../ap_common_plugin
+      ref: v0.0.1
+  #    path: ../ap_common_plugin
   http: 0.12.0+4
   dio: 3.0.9
   dio_cookie_manager: 1.0.0
@@ -59,5 +59,6 @@ flutter:
   uses-material-design: true
   assets:
     - assets/
+    - assets/images/
     - assets/labels.txt
     - assets/model.tflite
