@@ -33,7 +33,8 @@ class _CoursePageState extends State<CoursePage> {
 
   void _getCourse() async {
     courseData = CourseData.load('latest');
-    if (courseData != null) setState(() => _state = CourseState.finish);
+    if (courseData != null && courseData.courseTables.timeCode != null)
+      setState(() => _state = CourseState.finish);
     courseData = await CourseHelper.instance.getCourseTable();
     courseData.save('latest');
     setState(() => _state = CourseState.finish);
