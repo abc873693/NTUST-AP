@@ -15,7 +15,7 @@ class GitHubHelper {
   static const BASE_PATH = 'https://gist.githubusercontent.com';
 
   static const NEWS =
-      '/abc873693/c18531b5664e5eeb2d3dbc1ad6cb102e/raw/73895fb711c0cf00675fda24b6e453c9eb85c5f1/ntust_news.json';
+      '/abc873693/c18531b5664e5eeb2d3dbc1ad6cb102e/raw/ntust_news.json';
 
   static Dio dio;
 
