@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/course_data.dart';
+import 'package:ap_common/resources/ap_colors.dart';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
@@ -145,6 +146,7 @@ class CourseHelper {
       ),
     );
 //    debugPrint(response.data);
+    DateTime start = DateTime.now();
     final document = html.parse(response.data);
     final tBody = document.getElementsByTagName('tbody');
     debugPrint('tbody len = ${tBody.length}');
@@ -153,8 +155,7 @@ class CourseHelper {
       var trs = tBody[2].getElementsByTagName('tr');
       for (var i = 1; i < trs.length; i++) {
         final td = trs[i].getElementsByTagName('td');
-        var title = td[1].text.replaceAll(String.fromCharCode(10), '');
-        title = title.replaceAll(' ', '');
+        var title = parserText(td[1].text);
         courseData.courses.add(
           CourseDetail(
             code: td[0].text,
@@ -162,6 +163,8 @@ class CourseHelper {
             units: td[2].text,
             required: td[3].getElementsByTagName('span').first.text,
             instructors: [td[4].text],
+            color: ApColors.colors[i - 1][300],
+            times: '',
           ),
         );
       }
@@ -180,45 +183,63 @@ class CourseHelper {
           endTime: times[2].replaceAll(' ', ''),
         );
         if (td[2].text.length > emptyLength)
-          courseData.courseTables.monday
-              .add(parseCourse(title: td[2].text, date: date));
+          courseData.courseTables.monday.add(parseCourse(
+              title: td[2].text, date: date, courseData: courseData));
         if (td[3].text.length > emptyLength)
-          courseData.courseTables.tuesday
-              .add(parseCourse(title: td[3].text, date: date));
+          courseData.courseTables.tuesday.add(parseCourse(
+              title: td[3].text, date: date, courseData: courseData));
         if (td[4].text.length > emptyLength)
-          courseData.courseTables.wednesday
-              .add(parseCourse(title: td[4].text, date: date));
+          courseData.courseTables.wednesday.add(parseCourse(
+              title: td[4].text, date: date, courseData: courseData));
         if (td[5].text.length > emptyLength)
-          courseData.courseTables.thursday
-              .add(parseCourse(title: td[5].text, date: date));
+          courseData.courseTables.thursday.add(parseCourse(
+              title: td[5].text, date: date, courseData: courseData));
         if (td[6].text.length > emptyLength)
-          courseData.courseTables.friday
-              .add(parseCourse(title: td[6].text, date: date));
+          courseData.courseTables.friday.add(parseCourse(
+              title: td[6].text, date: date, courseData: courseData));
         if (td[7].text.length > emptyLength)
-          courseData.courseTables.saturday
-              .add(parseCourse(title: td[7].text, date: date));
+          courseData.courseTables.saturday.add(parseCourse(
+              title: td[7].text, date: date, courseData: courseData));
         if (td[8].text.length > emptyLength)
-          courseData.courseTables.sunday
-              .add(parseCourse(title: td[8].text, date: date));
+          courseData.courseTables.sunday.add(parseCourse(
+              title: td[8].text, date: date, courseData: courseData));
       }
     }
+    DateTime end = DateTime.now();
+    print(
+        'parse time = ${end.millisecondsSinceEpoch - start.millisecondsSinceEpoch} ms');
     return courseData;
+  }
+
+  String parserText(String text) {
+    String newText = text.replaceAll(String.fromCharCode(10), '');
+    newText = newText.replaceAll(' ', '');
+    return newText;
   }
 
   Course parseCourse({
     String title,
     Date date,
+    CourseData courseData,
   }) {
     var textList = title.split(String.fromCharCode(10));
     title = textList[1];
     title = title.replaceAll(' ', '');
-    return Course(
+    final course = Course(
       title: title,
       location: Location(
-        building: textList[2],
+        building: parserText(textList[2]),
+        room: '',
       ),
       date: date,
     );
+    final index = courseData.findCourseDetail(course);
+    if (index != -1) {
+      course.instructors = courseData.courses[index].instructors;
+      courseData.courses[index].location = course.location;
+      courseData.courses[index].times += '${course.date.section} ';
+    }
+    return course;
   }
 
   Future<void> checkLogin() async {
