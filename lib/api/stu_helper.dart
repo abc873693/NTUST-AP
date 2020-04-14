@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/ap_support_language.dart';
+import 'package:ap_common/models/user_info.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
@@ -13,11 +14,11 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:ntust_ap/config/constants.dart';
 
 class StuHelper {
-  static const BASE_PATH = 'https://stuinfo8.ntust.edu.tw/';
+  static const BASE_PATH = 'https://stuinfo8.ntust.edu.tw';
 
   static const LOGIN = '/ntust_stu/stu.aspx';
   static const VALIDATE_CODE = '/ntust_stu/VCode.aspx';
-  static const COURSE = '/ntust_stu/stu_menu.aspx';
+  static const MENU = '/ntust_stu/stu_menu.aspx';
   static const CHANGE_LANGUAGE = '/Home/SetCulture';
   static Dio dio;
 
@@ -39,7 +40,7 @@ class StuHelper {
           return client;
         };
       }
-      cookieJar.loadForRequest(Uri.parse('https://stuinfo8.ntust.edu.tw'));
+      cookieJar.loadForRequest(Uri.parse(BASE_PATH));
 //      _instance.setLanguage(
 //        Preferences.getString(
 //            Constants.PREF_LANGUAGE_CODE, ApSupportLanguage.zh.code),
@@ -168,7 +169,7 @@ class StuHelper {
   }
 
   Future<void> checkLogin() async {
-    print('$BASE_PATH$COURSE');
+    print('$BASE_PATH$MENU');
     var response = await dio.get(
       '$BASE_PATH',
       options: Options(
@@ -176,5 +177,26 @@ class StuHelper {
       ),
     );
     debugPrint(response.data);
+  }
+
+  Future<UserInfo> getUserInfo() async {
+    var response = await dio.get(
+      '$BASE_PATH$MENU',
+      options: Options(
+        responseType: ResponseType.plain,
+      ),
+    );
+    final document = html.parse(response.data);
+    final tBody = document.getElementsByTagName('tbody');
+    debugPrint('tbody len = ${tBody.length}');
+    if (tBody.length > 0) {
+      var tds = tBody[1].getElementsByTagName('td');
+      return UserInfo(
+        id: tds[1].text,
+        name: tds[3].text,
+        className: tds[5].text,
+      );
+    }
+    return UserInfo();
   }
 }
