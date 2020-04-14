@@ -25,7 +25,7 @@ import 'package:ntust_ap/config/constants.dart';
 import 'package:ntust_ap/pages/setting_page.dart';
 import 'package:ntust_ap/resourses/ap_assets.dart';
 import 'package:ntust_ap/utils/app_localizations.dart';
-import 'package:ntust_ap/utils/ocr_utils.dart';
+import 'package:ntust_ap/utils/captcha_utils.dart';
 import 'package:ntust_ap/widgets/share_data_widget.dart';
 
 import 'study/course_page.dart';
@@ -344,7 +344,7 @@ class HomePageState extends State<HomePage> {
     var bodyBytes = await CourseHelper.instance.getValidationImage();
     if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
       validationCode =
-          await ValidateCodeUtils.extractByTfLite(bodyBytes: bodyBytes);
+          await CaptchaUtils.extractByTfLite(bodyBytes: bodyBytes);
     }
     CourseHelper.instance.login(
       username: username,

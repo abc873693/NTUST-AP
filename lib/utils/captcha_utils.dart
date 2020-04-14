@@ -8,7 +8,7 @@ import 'package:path/path.dart';
 import 'package:tflite/tflite.dart';
 import 'package:image/image.dart' as img;
 
-class ValidateCodeUtils {
+class CaptchaUtils {
   static Future<String> extractByTfLite({
     @required Uint8List bodyBytes,
   }) async {

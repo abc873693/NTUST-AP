@@ -5,7 +5,7 @@ import 'package:ap_common/scaffold/login_scaffold.dart';
 import 'package:ntust_ap/api/course_helper.dart';
 import 'package:ntust_ap/config/constants.dart';
 import 'package:ntust_ap/pages/study/course_page.dart';
-import 'package:ntust_ap/utils/ocr_utils.dart';
+import 'package:ntust_ap/utils/captcha_utils.dart';
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/general_response.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
@@ -164,7 +164,7 @@ class LoginPageState extends State<LoginPage> {
     setState(() {});
     if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
       _validationCode.text =
-          await ValidateCodeUtils.extractByTfLite(bodyBytes: bodyBytes);
+          await CaptchaUtils.extractByTfLite(bodyBytes: bodyBytes);
       setState(() {});
     }
   }
@@ -195,7 +195,7 @@ class LoginPageState extends State<LoginPage> {
               print('4001');
               bodyBytes = await CourseHelper.instance.getValidationImage();
               if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-                _validationCode.text = await ValidateCodeUtils.extractByTfLite(
+                _validationCode.text = await CaptchaUtils.extractByTfLite(
                     bodyBytes: bodyBytes);
               }
               _login();
