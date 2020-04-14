@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/course_data.dart';
 import 'package:ap_common/resources/ap_colors.dart';
+import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
@@ -182,27 +183,34 @@ class CourseHelper {
           startTime: times[1].replaceAll(' ', '').replaceAll('～', ''),
           endTime: times[2].replaceAll(' ', ''),
         );
-        if (td[2].text.length > emptyLength)
-          courseData.courseTables.monday.add(parseCourse(
-              title: td[2].text, date: date, courseData: courseData));
-        if (td[3].text.length > emptyLength)
-          courseData.courseTables.tuesday.add(parseCourse(
-              title: td[3].text, date: date, courseData: courseData));
-        if (td[4].text.length > emptyLength)
-          courseData.courseTables.wednesday.add(parseCourse(
-              title: td[4].text, date: date, courseData: courseData));
-        if (td[5].text.length > emptyLength)
-          courseData.courseTables.thursday.add(parseCourse(
-              title: td[5].text, date: date, courseData: courseData));
-        if (td[6].text.length > emptyLength)
-          courseData.courseTables.friday.add(parseCourse(
-              title: td[6].text, date: date, courseData: courseData));
-        if (td[7].text.length > emptyLength)
-          courseData.courseTables.saturday.add(parseCourse(
-              title: td[7].text, date: date, courseData: courseData));
-        if (td[8].text.length > emptyLength)
-          courseData.courseTables.sunday.add(parseCourse(
-              title: td[8].text, date: date, courseData: courseData));
+        for (var weekIndex = 0;
+            weekIndex < courseData.courseTables.weeks.length;
+            weekIndex++) {
+          if (td[weekIndex + 2].text.length > emptyLength)
+            courseData.courseTables.weeks[weekIndex].add(
+              parseCourse(
+                title: td[weekIndex + 2].text,
+                date: date,
+                courseData: courseData,
+              ),
+            );
+        }
+      }
+      for (var courseDetail in courseData.courses) {
+        for (var weekIndex = 0;
+            weekIndex < courseData.courseTables.weeks.length;
+            weekIndex++) {
+          List<String> sections = [];
+          for (var course in courseData.courseTables.weeks[weekIndex]) {
+            if (course.title == courseDetail.title)
+              sections.add(course.date.section);
+          }
+          if (sections.length > 0) {
+            courseDetail.times +=
+                "(${ApLocalizations.instance.weekdaysCourse[weekIndex]}) ";
+            sections.forEach((section) => courseDetail.times += '$section ');
+          }
+        }
       }
     }
     DateTime end = DateTime.now();
@@ -237,7 +245,6 @@ class CourseHelper {
     if (index != -1) {
       course.instructors = courseData.courses[index].instructors;
       courseData.courses[index].location = course.location;
-      courseData.courses[index].times += '${course.date.section} ';
     }
     return course;
   }
