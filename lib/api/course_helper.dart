@@ -2,15 +2,18 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:ap_common/callback/general_callback.dart';
+import 'package:ap_common/models/ap_support_language.dart';
 import 'package:ap_common/models/course_data.dart';
 import 'package:ap_common/resources/ap_colors.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
+import 'package:ap_common/utils/preferences.dart';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/widgets.dart';
 import 'package:html/parser.dart' as html;
 import 'package:cookie_jar/cookie_jar.dart';
+import 'package:ntust_ap/config/constants.dart';
 
 class CourseHelper {
   static const BASE_PATH = 'https://courseselection.ntust.edu.tw';
@@ -32,15 +35,19 @@ class CourseHelper {
       dio = Dio();
       dio.interceptors.add(CookieManager(cookieJar));
       cookieJar.loadForRequest(Uri.parse(BASE_PATH));
+      _instance.setLanguage(
+        Preferences.getString(
+            Constants.PREF_LANGUAGE_CODE, ApSupportLanguage.zh.code),
+      );
     }
     return _instance;
   }
 
   String language(String languageCode) {
     switch (languageCode) {
-      case 'en':
+      case ApSupportLanguageConstants.EN:
         return 'en-US';
-      case 'zh':
+      case ApSupportLanguageConstants.ZH:
       default:
         return 'zh-TW';
     }
