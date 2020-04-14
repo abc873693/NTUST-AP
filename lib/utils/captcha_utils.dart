@@ -8,13 +8,77 @@ import 'package:path/path.dart';
 import 'package:tflite/tflite.dart';
 import 'package:image/image.dart' as img;
 
+enum SystemType {
+  stu,
+  course,
+}
+
+class CaptchaUtilConfig {
+  final int digitsCount;
+  final int imageHeight;
+  final int imageWidth;
+  final String modelName;
+  final int cropX;
+  final int cropY;
+  final int cropWidth;
+  final int cropHeight;
+  final bool needResize;
+
+  CaptchaUtilConfig({
+    this.digitsCount,
+    this.imageWidth,
+    this.imageHeight,
+    this.modelName,
+    this.cropX,
+    this.cropY,
+    this.cropWidth,
+    this.cropHeight,
+    this.needResize,
+  });
+
+  factory CaptchaUtilConfig.load({
+    @required SystemType type,
+  }) {
+    switch (type) {
+      case SystemType.stu:
+        return CaptchaUtilConfig(
+          digitsCount: 6,
+          imageWidth: 57,
+          imageHeight: 13,
+          modelName: "assets/model-ap.tflite",
+          cropX: 10,
+          cropY: 10,
+          cropWidth: 114,
+          cropHeight: 26,
+          needResize: true,
+        );
+      case SystemType.course:
+      default:
+        return CaptchaUtilConfig(
+          digitsCount: 6,
+          imageWidth: 61,
+          imageHeight: 14,
+          modelName: "assets/model.tflite",
+          cropX: 5,
+          cropY: 3,
+          cropWidth: 61,
+          cropHeight: 14,
+          needResize: false,
+        );
+        break;
+    }
+  }
+}
+
 class CaptchaUtils {
   static Future<String> extractByTfLite({
+    @required SystemType type,
     @required Uint8List bodyBytes,
   }) async {
-    final digitsCount = 6;
-    final imageHeight = 14;
-    final imageWidth = 61;
+    final config = CaptchaUtilConfig.load(type: type);
+    final digitsCount = config.digitsCount;
+    final imageHeight = config.imageHeight;
+    final imageWidth = config.imageWidth;
     try {
       final Directory directory = await getTemporaryDirectory();
       final String imagePath = join(
@@ -26,14 +90,22 @@ class CaptchaUtils {
       var end = DateTime.now();
       var source = img.decodeImage(File(imagePath).readAsBytesSync());
       var grayscaleImage = img.grayscale(source);
-      var crop = img.copyCrop(grayscaleImage, 5, 3, imageWidth, imageHeight);
+      var crop = img.copyCrop(
+        grayscaleImage,
+        config.cropX,
+        config.cropY,
+        config.cropWidth,
+        config.cropHeight,
+      );
+      if (config.needResize)
+        crop = img.copyResize(crop, width: imageWidth, height: imageHeight);
       end = DateTime.now();
       final cropTime =
           end.millisecondsSinceEpoch - start.millisecondsSinceEpoch;
       print('crop time = $cropTime ms');
       start = DateTime.now();
       String res = await Tflite.loadModel(
-          model: "assets/model.tflite",
+          model: config.modelName,
           labels: "assets/labels.txt",
           numThreads: 1 // defaults to 1
           );
