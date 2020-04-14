@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:ap_common/scaffold/login_scaffold.dart';
-import 'package:ntust_ap/api/course_helper.dart';
 import 'package:ntust_ap/api/stu_helper.dart';
 import 'package:ntust_ap/config/constants.dart';
 import 'package:ntust_ap/utils/captcha_utils.dart';
@@ -321,7 +320,6 @@ class LoginPageState extends State<LoginPage> {
             Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
             ApUtils.showToast(context, app.loginSuccess);
             //TODO record validation error times
-            await CourseHelper.instance.checkLogin();
             Navigator.of(context).pop(true);
           },
         ),

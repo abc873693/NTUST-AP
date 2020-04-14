@@ -121,7 +121,7 @@ class StuHelper {
           'Button1': "登入系統"
         },
       );
-      debugPrint(response.data);
+//      debugPrint(response.data);
       final rawHtml = response.data;
       GeneralResponse generalResponse;
       if (rawHtml.contains("檢核碼輸入錯誤")) {

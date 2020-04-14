@@ -16,6 +16,9 @@ class Constants {
   static const PREF_AUTO_LOGIN = "pref_auto_login";
   static const PREF_USERNAME = "pref_username";
   static const PREF_PASSWORD = "pref_password";
+  static const PREF_BIRTH_MONTH = "pref_birth_month";
+  static const PREF_BIRTH_DAY = "pref_birth_day";
+  static const PREF_ID_CARD = "pref_id_card";
 
   static const PREF_COURSE_NOTIFY = "pref_course_notify";
   static const PREF_BUS_NOTIFY = "pref_bus_notify";

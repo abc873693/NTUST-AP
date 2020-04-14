@@ -342,20 +342,32 @@ class HomePageState extends State<HomePage> {
   }
 
   _login() async {
+    var start = DateTime.now();
     var username = Preferences.getString(Constants.PREF_USERNAME, '');
     var password = Preferences.getStringSecurity(Constants.PREF_PASSWORD, '');
-    var bodyBytes = await CourseHelper.instance.getValidationImage();
+    var month = Preferences.getString(Constants.PREF_BIRTH_MONTH, '');
+    var day = Preferences.getString(Constants.PREF_BIRTH_DAY, '');
+    var idCard = Preferences.getStringSecurity(Constants.PREF_ID_CARD, '');
+    var end = DateTime.now();
+    print(
+        'load preference time = ${end.millisecondsSinceEpoch - start.millisecondsSinceEpoch} ms');
+    var bodyBytes = await StuHelper.instance.getValidationImage();
     if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-      validationCode = await CaptchaUtils.extractByTfLite(bodyBytes: bodyBytes);
+      validationCode = await CaptchaUtils.extractByTfLite(
+        bodyBytes: bodyBytes,
+        type: SystemType.stu,
+      );
     }
-    CourseHelper.instance.login(
+    StuHelper.instance.login(
       username: username,
       password: password,
+      month: month,
+      day: day,
+      idCard: idCard,
       validationCode: validationCode,
       callback: GeneralCallback(
         onError: (GeneralResponse e) async {
           if (e.statusCode == 4001) {
-            print('4001');
             _login();
           }
         },
@@ -363,7 +375,6 @@ class HomePageState extends State<HomePage> {
           ApUtils.showToast(context, ApLocalizations.dioError(context, e));
         },
         onSuccess: (GeneralResponse data) async {
-          await CourseHelper.instance.checkLogin();
           _homeKey.currentState.showBasicHint(text: ap.loginSuccess);
           setState(() {
             ShareDataWidget.of(context).data.username = username;
