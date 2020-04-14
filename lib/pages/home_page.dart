@@ -21,8 +21,10 @@ import 'package:ap_common/models/user_info.dart';
 import 'package:ap_common/widgets/yes_no_dialog.dart';
 import 'package:ntust_ap/api/course_helper.dart';
 import 'package:ntust_ap/api/github_helper.dart';
+import 'package:ntust_ap/api/stu_helper.dart';
 import 'package:ntust_ap/config/constants.dart';
 import 'package:ntust_ap/pages/setting_page.dart';
+import 'package:ntust_ap/pages/user_info_page.dart';
 import 'package:ntust_ap/resourses/ap_assets.dart';
 import 'package:ntust_ap/utils/app_localizations.dart';
 import 'package:ntust_ap/utils/captcha_utils.dart';
@@ -108,7 +110,8 @@ class HomePageState extends State<HomePage> {
       },
       drawer: ApDrawer(
         builder: () async {
-          return UserInfo();
+          userInfo = await StuHelper.instance.getUserInfo();
+          return userInfo;
         },
         widgets: <Widget>[
           ExpansionTile(
@@ -195,20 +198,20 @@ class HomePageState extends State<HomePage> {
             ),
         ],
         onTapHeader: () {
-//          if (isLogin) {
-//            if (userInfo != null) {
-//              Navigator.of(context).pop();
-//              ApUtils.pushCupertinoStyle(
-//                context,
-//                UserInfoPage(
-//                  userInfo: userInfo,
-//                ),
-//              );
-//            }
-//          } else {
-//            Navigator.of(context).pop();
-//            _showLoginPage();
-//          }
+          if (isLogin) {
+            if (userInfo != null) {
+              Navigator.of(context).pop();
+              ApUtils.pushCupertinoStyle(
+                context,
+                UserInfoPage(
+                  userInfo: userInfo,
+                ),
+              );
+            }
+          } else {
+            Navigator.of(context).pop();
+            _showLoginPage();
+          }
         },
       ),
       newsList: newsList,
@@ -343,8 +346,7 @@ class HomePageState extends State<HomePage> {
     var password = Preferences.getStringSecurity(Constants.PREF_PASSWORD, '');
     var bodyBytes = await CourseHelper.instance.getValidationImage();
     if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-      validationCode =
-          await CaptchaUtils.extractByTfLite(bodyBytes: bodyBytes);
+      validationCode = await CaptchaUtils.extractByTfLite(bodyBytes: bodyBytes);
     }
     CourseHelper.instance.login(
       username: username,
