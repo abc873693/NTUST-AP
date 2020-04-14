@@ -8,6 +8,7 @@ import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/option_dialog.dart';
 import 'package:ap_common/widgets/setting_page_widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:ntust_ap/api/course_helper.dart';
 import 'package:ntust_ap/config/constants.dart';
 import 'package:ntust_ap/utils/app_localizations.dart';
 import 'package:ntust_ap/widgets/share_data_widget.dart';
@@ -111,7 +112,7 @@ class SettingPageState extends State<SettingPage> {
                     title: ap.language,
                     items: languageTextList,
                     index: languageIndex,
-                    onSelected: (int index) {
+                    onSelected: (int index) async {
                       Locale locale;
                       String code = ApSupportLanguage.values[index].code;
                       switch (index) {
@@ -122,6 +123,7 @@ class SettingPageState extends State<SettingPage> {
                           locale = Locale(code);
                           break;
                       }
+                      CourseHelper.instance.setLanguage(code);
                       Preferences.setString(Constants.PREF_LANGUAGE_CODE, code);
                       setState(() {
                         AppLocalizationsDelegate().load(locale);

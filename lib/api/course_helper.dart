@@ -18,7 +18,7 @@ class CourseHelper {
   static const LOGIN = '/Account/Login';
   static const VALIDATE_CODE = '/Account/GetValidateCode';
   static const COURSE = '/ChooseList/D01/D01';
-
+  static const CHANGE_LANGUAGE = '/Home/SetCulture';
   static Dio dio;
 
   static CookieJar cookieJar;
@@ -34,6 +34,22 @@ class CourseHelper {
       cookieJar.loadForRequest(Uri.parse(BASE_PATH));
     }
     return _instance;
+  }
+
+  String language(String languageCode) {
+    switch (languageCode) {
+      case 'en':
+        return 'en-US';
+      case 'zh':
+      default:
+        return 'zh-TW';
+    }
+  }
+
+  void setLanguage(String languageCode) {
+    var list = cookieJar.loadForRequest(Uri.parse(BASE_PATH));
+    list.add(Cookie('_culture', CourseHelper.instance.language(languageCode)));
+    cookieJar.saveFromResponse(Uri.parse(BASE_PATH), list);
   }
 
   Future<Uint8List> getValidationImage() async {
