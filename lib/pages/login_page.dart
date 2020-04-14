@@ -3,8 +3,8 @@ import 'dart:typed_data';
 
 import 'package:ap_common/scaffold/login_scaffold.dart';
 import 'package:ntust_ap/api/course_helper.dart';
+import 'package:ntust_ap/api/stu_helper.dart';
 import 'package:ntust_ap/config/constants.dart';
-import 'package:ntust_ap/pages/study/course_page.dart';
 import 'package:ntust_ap/utils/captcha_utils.dart';
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/general_response.dart';
@@ -29,13 +29,19 @@ class LoginPageState extends State<LoginPage> {
   final TextEditingController _username = TextEditingController();
   final TextEditingController _password = TextEditingController();
   final TextEditingController _validationCode = TextEditingController();
+  final TextEditingController _month = TextEditingController();
+  final TextEditingController _day = TextEditingController();
+  final TextEditingController _idCard = TextEditingController();
 
   var isRememberPassword = true;
   var isAutoLogin = false;
 
-  FocusNode usernameFocusNode = FocusNode();
-  FocusNode passwordFocusNode = FocusNode();
-  FocusNode validationCodeFocusNode = FocusNode();
+  final _usernameFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
+  final _validationCodeFocusNode = FocusNode();
+  final _monthFocusNode = FocusNode();
+  final _dayFocusNode = FocusNode();
+  final _idCardFocusNode = FocusNode();
 
   Uint8List bodyBytes;
 
@@ -60,17 +66,74 @@ class LoginPageState extends State<LoginPage> {
       forms: <Widget>[
         ApTextField(
           controller: _username,
-          focusNode: usernameFocusNode,
-          nextFocusNode: passwordFocusNode,
+          focusNode: _usernameFocusNode,
+          nextFocusNode: _passwordFocusNode,
           labelText: app.username,
         ),
         ApTextField(
           obscureText: true,
           textInputAction: TextInputAction.next,
           controller: _password,
-          focusNode: passwordFocusNode,
-          nextFocusNode: validationCodeFocusNode,
+          focusNode: _passwordFocusNode,
+          nextFocusNode: _validationCodeFocusNode,
           labelText: app.password,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Expanded(
+              child: ApTextField(
+                controller: _month,
+                focusNode: _monthFocusNode,
+                nextFocusNode: _dayFocusNode,
+                keyboardType: TextInputType.datetime,
+                labelText: '出生月',
+                maxLength: 2,
+                onChanged: (text) {
+                  if (text.length == 2) {
+                    _monthFocusNode.unfocus();
+                    FocusScope.of(context).requestFocus(_dayFocusNode);
+                  }
+                },
+              ),
+            ),
+            SizedBox(width: 8.0),
+            Expanded(
+              child: ApTextField(
+                keyboardType: TextInputType.datetime,
+                controller: _day,
+                focusNode: _dayFocusNode,
+                nextFocusNode: _idCardFocusNode,
+                labelText: '出生日',
+                maxLength: 2,
+                onChanged: (text) {
+                  if (text.length == 2) {
+                    _dayFocusNode.unfocus();
+                    FocusScope.of(context).requestFocus(_idCardFocusNode);
+                  }
+                },
+              ),
+            ),
+            SizedBox(width: 8.0),
+            Expanded(
+              flex: 2,
+              child: ApTextField(
+                controller: _idCard,
+                focusNode: _idCardFocusNode,
+                nextFocusNode: _validationCodeFocusNode,
+                keyboardType: TextInputType.number,
+                labelText: '身分證末四碼',
+                onChanged: (text) {
+                  if (text.length == 4) {
+                    _idCardFocusNode.unfocus();
+                    FocusScope.of(context)
+                        .requestFocus(_validationCodeFocusNode);
+                  }
+                },
+              ),
+            ),
+          ],
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -96,7 +159,7 @@ class LoginPageState extends State<LoginPage> {
               child: ApTextField(
                 textInputAction: TextInputAction.send,
                 controller: _validationCode,
-                focusNode: validationCodeFocusNode,
+                focusNode: _validationCodeFocusNode,
                 onSubmitted: (text) {
                   _login();
                 },
@@ -149,28 +212,40 @@ class LoginPageState extends State<LoginPage> {
     isRememberPassword =
         Preferences.getBool(Constants.PREF_REMEMBER_PASSWORD, true);
     var username = Preferences.getString(Constants.PREF_USERNAME, '');
-    var password = '';
+    var password = '', month = '', day = '', idCard = '';
     if (isRememberPassword) {
       password = Preferences.getStringSecurity(Constants.PREF_PASSWORD, '');
+      month = Preferences.getString(Constants.PREF_BIRTH_MONTH, '');
+      day = Preferences.getString(Constants.PREF_BIRTH_DAY, '');
+      idCard = Preferences.getStringSecurity(Constants.PREF_ID_CARD, '');
     }
     setState(() {
       _username.text = username;
       _password.text = password;
+      _month.text = month;
+      _day.text = day;
+      _idCard.text = idCard;
     });
   }
 
   void _getValidationCode() async {
-    bodyBytes = await CourseHelper.instance.getValidationImage();
+    bodyBytes = await StuHelper.instance.getValidationImage();
     setState(() {});
     if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-      _validationCode.text =
-          await CaptchaUtils.extractByTfLite(bodyBytes: bodyBytes);
+      _validationCode.text = await CaptchaUtils.extractByTfLite(
+        bodyBytes: bodyBytes,
+        type: SystemType.stu,
+      );
       setState(() {});
     }
   }
 
   _login() async {
-    if (_username.text.isEmpty || _password.text.isEmpty) {
+    if (_username.text.isEmpty ||
+        _password.text.isEmpty ||
+        _month.text.isEmpty ||
+        _day.text.isEmpty ||
+        _idCard.text.isEmpty) {
       ApUtils.showToast(context, app.doNotEmpty);
     } else {
       showDialog(
@@ -184,19 +259,24 @@ class LoginPageState extends State<LoginPage> {
         barrierDismissible: false,
       );
       Preferences.setString(Constants.PREF_USERNAME, _username.text);
-      CourseHelper.instance.login(
+      StuHelper.instance.login(
         username: _username.text,
         password: _password.text,
+        month: _month.text,
+        day: _day.text,
+        idCard: _idCard.text,
         validationCode: _validationCode.text,
         callback: GeneralCallback<GeneralResponse>(
           onError: (GeneralResponse e) async {
             Navigator.pop(context);
             if (e.statusCode == 4001) {
               print('4001');
-              bodyBytes = await CourseHelper.instance.getValidationImage();
+              bodyBytes = await StuHelper.instance.getValidationImage();
               if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
                 _validationCode.text = await CaptchaUtils.extractByTfLite(
-                    bodyBytes: bodyBytes);
+                  bodyBytes: bodyBytes,
+                  type: SystemType.stu,
+                );
               }
               _login();
             } else {
@@ -217,6 +297,7 @@ class LoginPageState extends State<LoginPage> {
                   break;
               }
               ApUtils.showToast(context, message);
+//              StuHelper.instance.checkLogin();
             }
           },
           onFailure: (DioError e) {
@@ -231,6 +312,11 @@ class LoginPageState extends State<LoginPage> {
                 Constants.PREF_PASSWORD,
                 _password.text,
               );
+              await Preferences.setString(
+                  Constants.PREF_BIRTH_MONTH, _month.text);
+              await Preferences.setString(Constants.PREF_BIRTH_DAY, _day.text);
+              await Preferences.setStringSecurity(
+                  Constants.PREF_ID_CARD, _idCard.text);
             }
             Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
             ApUtils.showToast(context, app.loginSuccess);
