@@ -27,6 +27,8 @@ class CourseHelper {
 
   static CourseHelper _instance;
 
+  static bool isLogin = false;
+
   static CourseHelper get instance {
     if (_instance == null) {
       _instance = CourseHelper();
@@ -137,6 +139,7 @@ class CourseHelper {
             ),
           );
         else if (e.response.data.toString().contains('Object moved')) {
+          isLogin = true;
           print(callback?.onSuccess(GeneralResponse.success()).runtimeType);
 //          callback?.onSuccess(GeneralResponse.success());
         } else
