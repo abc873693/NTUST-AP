@@ -7,7 +7,6 @@ import 'package:ap_common/models/course_data.dart';
 import 'package:ap_common/resources/ap_colors.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/preferences.dart';
-import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/widgets.dart';
@@ -60,14 +59,6 @@ class CourseHelper {
   }
 
   Future<Uint8List> getValidationImage() async {
-//    if (Platform.isAndroid) {
-//      (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
-//          (client) {
-//        client.badCertificateCallback =
-//            (X509Certificate cert, String host, int port) => true;
-//        return client;
-//      };
-//    }
     var response = await dio.get(
       '$BASE_PATH$VALIDATE_CODE',
       options: Options(responseType: ResponseType.bytes),
