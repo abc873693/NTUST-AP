@@ -53,7 +53,7 @@ class HomePageState extends State<HomePage> {
 
   bool isLogin = false;
 
-  UserInfo userInfo = UserInfo();
+  UserInfo userInfo;
 
   List<News> newsList = [];
 
@@ -110,7 +110,14 @@ class HomePageState extends State<HomePage> {
       },
       drawer: ApDrawer(
         builder: () async {
-          userInfo = await StuHelper.instance.getUserInfo();
+          if (isLogin) {
+            userInfo = await StuHelper.instance.getUserInfo();
+//            if (userInfo != null) {
+//              FA.setUserProperty('department', userInfo.department);
+//              FA.logUserInfo(userInfo.department);
+//              FA.setUserId(userInfo.id);
+//            }
+          }
           return userInfo;
         },
         widgets: <Widget>[

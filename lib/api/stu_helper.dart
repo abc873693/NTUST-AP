@@ -197,6 +197,6 @@ class StuHelper {
         className: tds[5].text,
       );
     }
-    return UserInfo();
+    return null;
   }
 }
