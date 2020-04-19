@@ -19,6 +19,8 @@
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		A42178C02444D6EB009C2A90 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A42178C22444D6EB009C2A90 /* InfoPlist.strings */; };
 		A42178C52444D702009C2A90 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A42178C72444D702009C2A90 /* InfoPlist.strings */; };
+		A4947938244C809E00E68F3D /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A4947937244C809E00E68F3D /* AdSupport.framework */; };
+		A494793A244C814600E68F3D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A4947939244C814600E68F3D /* GoogleService-Info.plist */; };
 		ED2DE5BCCC25A6CEF4F6CD35 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B02E0554EE62926CC7F6959 /* Pods_Runner.framework */; };
 /* End PBXBuildFile section */
 
@@ -61,6 +63,9 @@
 		A42178BD2444D6B2009C2A90 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
 		A42178C12444D6EB009C2A90 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		A42178C62444D702009C2A90 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		A4947937244C809E00E68F3D /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = System/Library/Frameworks/AdSupport.framework; sourceTree = SDKROOT; };
+		A4947939244C814600E68F3D /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "GoogleService-Info.plist"; sourceTree = SOURCE_ROOT; };
+		A494793B244C943800E68F3D /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -69,6 +74,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9705A1C61CF904A100538489 /* Flutter.framework in Frameworks */,
+				A4947938244C809E00E68F3D /* AdSupport.framework in Frameworks */,
 				3B80C3941E831B6300D905FE /* App.framework in Frameworks */,
 				ED2DE5BCCC25A6CEF4F6CD35 /* Pods_Runner.framework in Frameworks */,
 			);
@@ -90,6 +96,7 @@
 		49CB5BD3F589DC21908EC079 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A4947937244C809E00E68F3D /* AdSupport.framework */,
 				8B02E0554EE62926CC7F6959 /* Pods_Runner.framework */,
 			);
 			name = Frameworks;
@@ -130,6 +137,8 @@
 		97C146F01CF9000F007C117D /* Runner */ = {
 			isa = PBXGroup;
 			children = (
+				A494793B244C943800E68F3D /* Runner.entitlements */,
+				A4947939244C814600E68F3D /* GoogleService-Info.plist */,
 				97C146FA1CF9000F007C117D /* Main.storyboard */,
 				97C146FD1CF9000F007C117D /* Assets.xcassets */,
 				97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */,
@@ -167,6 +176,7 @@
 				9705A1C41CF9048500538489 /* Embed Frameworks */,
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
 				5E4272402A6AAC5EEB50349C /* [CP] Embed Pods Frameworks */,
+				A4947936244C806800E68F3D /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -223,6 +233,7 @@
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
 				A42178C02444D6EB009C2A90 /* InfoPlist.strings in Resources */,
+				A494793A244C814600E68F3D /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -292,7 +303,24 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" build";
+			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" build\n";
+		};
+		A4947936244C806800E68F3D /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n${PODS_ROOT}/Fabric/run\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -404,6 +432,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = R7BC26UNC9;
 				ENABLE_BITCODE = NO;
@@ -542,6 +571,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = R7BC26UNC9;
 				ENABLE_BITCODE = NO;
@@ -571,6 +601,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = R7BC26UNC9;
 				ENABLE_BITCODE = NO;
