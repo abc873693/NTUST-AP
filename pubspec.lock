@@ -5,17 +5,26 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "v0.0.9"
-      resolved-ref: "67788b3b908bf91799bfd31e1c0fe0dae17e4b84"
+      ref: "v0.1.1"
+      resolved-ref: "4128bfa05d3c21fd57fc244e9be0463f5af4dd63"
       url: "https://github.com/abc873693/ap_common"
     source: git
-    version: "0.0.9"
+    version: "0.1.1"
+  ap_common_firbase:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: "5d9fdb04139460f0503e8f4d5be0471e697b52e6"
+      url: "https://github.com/abc873693/ap_common_firebase"
+    source: git
+    version: "0.0.1"
   ap_common_plugin:
     dependency: "direct main"
     description:
       path: "."
-      ref: "v0.0.2"
-      resolved-ref: cf015ab4973060343e92abc27bfce67c927b874d
+      ref: HEAD
+      resolved-ref: a927164d2c4b0fbb7fe160b7495755b4f39f1211
       url: "https://github.com/abc873693/ap_common_plugin"
     source: git
     version: "0.0.2"
@@ -131,6 +140,34 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.0.0"
+  firebase_analytics:
+    dependency: transitive
+    description:
+      name: firebase_analytics
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "5.0.11"
+  firebase_crashlytics:
+    dependency: transitive
+    description:
+      name: firebase_crashlytics
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.3+3"
+  firebase_messaging:
+    dependency: transitive
+    description:
+      name: firebase_messaging
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "6.0.13"
+  firebase_remote_config:
+    dependency: transitive
+    description:
+      name: firebase_remote_config
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.3.0+3"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -143,6 +180,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.1.3"
+  flutter_cupertino_localizations:
+    dependency: transitive
+    description:
+      name: flutter_cupertino_localizations
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.1"
   flutter_localizations:
     dependency: "direct main"
     description: flutter
