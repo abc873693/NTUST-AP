@@ -39,3 +39,4 @@ lib/generated_plugin_registrant.dart
 # firebase setting files
 google-services\.json
 GoogleService-Info\.plist
+android/key.properties
