@@ -19,7 +19,6 @@ import 'package:flutter/material.dart';
 import 'package:ap_common/models/new_response.dart';
 import 'package:ap_common/models/user_info.dart';
 import 'package:ap_common/widgets/yes_no_dialog.dart';
-import 'package:ntust_ap/api/course_helper.dart';
 import 'package:ntust_ap/api/github_helper.dart';
 import 'package:ntust_ap/api/stu_helper.dart';
 import 'package:ntust_ap/config/constants.dart';
@@ -109,17 +108,7 @@ class HomePageState extends State<HomePage> {
 //        FA.logAction('news_image', 'click', message: message);
       },
       drawer: ApDrawer(
-        builder: () async {
-          if (isLogin) {
-            userInfo = await StuHelper.instance.getUserInfo();
-//            if (userInfo != null) {
-//              FA.setUserProperty('department', userInfo.department);
-//              FA.logUserInfo(userInfo.department);
-//              FA.setUserId(userInfo.id);
-//            }
-          }
-          return userInfo;
-        },
+        userInfo: userInfo,
         widgets: <Widget>[
           ExpansionTile(
             initiallyExpanded: isStudyExpanded,
@@ -383,6 +372,7 @@ class HomePageState extends State<HomePage> {
         },
         onSuccess: (GeneralResponse data) async {
           _homeKey.currentState.showBasicHint(text: ap.loginSuccess);
+          _getUserInfo();
           setState(() {
             ShareDataWidget.of(context).data.username = username;
             ShareDataWidget.of(context).data.password = password;
@@ -391,6 +381,10 @@ class HomePageState extends State<HomePage> {
         },
       ),
     );
+  }
+
+  _getUserInfo() async {
+    userInfo = await StuHelper.instance.getUserInfo();
   }
 
   _checkUpdate() async {
@@ -459,6 +453,7 @@ class HomePageState extends State<HomePage> {
       if (state != HomeState.finish) {
         _getAllNews();
       }
+      _getUserInfo();
       isLogin = true;
       _homeKey.currentState.hideSnackBar();
     } else {
