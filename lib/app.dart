@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:ap_common_firbase/utils/firebase_analytics_utils.dart';
+import 'package:ap_common_firbase/utils/firebase_utils.dart';
 import 'package:ntust_ap/pages/home_page.dart';
 import 'package:ntust_ap/pages/login_page.dart';
 import 'package:ntust_ap/utils/app_localizations.dart';
@@ -27,8 +29,11 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   ThemeMode themeMode = ThemeMode.system;
 
+  FirebaseAnalytics _analytics;
+
   @override
   void initState() {
+    _analytics = FirebaseUtils.init();
     themeMode = ThemeMode
         .values[Preferences.getInt(Constants.PREF_THEME_MODE_INDEX, 0)];
     WidgetsBinding.instance.addObserver(this);
@@ -63,11 +68,11 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
           theme: ApTheme.light,
           darkTheme: ApTheme.dark,
           themeMode: themeMode,
-//          navigatorObservers: !kIsWeb && (Platform.isAndroid || Platform.isIOS)
-//              ? [
-//                  FirebaseAnalyticsObserver(analytics: _analytics),
-//                ]
-//              : [],
+          navigatorObservers: !kIsWeb && (Platform.isAndroid || Platform.isIOS)
+              ? [
+                  FirebaseAnalyticsObserver(analytics: _analytics),
+                ]
+              : [],
           localeResolutionCallback:
               (Locale locale, Iterable<Locale> supportedLocales) {
 //            print('Load ${locale.languageCode}');
