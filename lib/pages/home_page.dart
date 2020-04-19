@@ -384,7 +384,17 @@ class HomePageState extends State<HomePage> {
   }
 
   _getUserInfo() async {
-    userInfo = await StuHelper.instance.getUserInfo();
+    StuHelper.instance.getUserInfo(
+      callback: GeneralCallback(
+        onFailure: (DioError e) {},
+        onError: (GeneralResponse e) {},
+        onSuccess: (UserInfo data) {
+          setState(() {
+            userInfo = data;
+          });
+        },
+      ),
+    );
   }
 
   _checkUpdate() async {

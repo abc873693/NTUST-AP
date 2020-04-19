@@ -179,23 +179,34 @@ class StuHelper {
     debugPrint(response.data);
   }
 
-  Future<UserInfo> getUserInfo() async {
-    var response = await dio.get(
-      '$BASE_PATH$MENU',
-      options: Options(
-        responseType: ResponseType.plain,
-      ),
-    );
-    final document = html.parse(response.data);
-    final tBody = document.getElementsByTagName('tbody');
-    debugPrint('tbody len = ${tBody.length}');
-    if (tBody.length > 0) {
-      var tds = tBody[1].getElementsByTagName('td');
-      return UserInfo(
-        id: tds[1].text,
-        name: tds[3].text,
-        className: tds[5].text,
+  Future<UserInfo> getUserInfo({
+    GeneralCallback<UserInfo> callback,
+  }) async {
+    try {
+      var response = await dio.get(
+        '$BASE_PATH$MENU',
+        options: Options(
+          responseType: ResponseType.plain,
+        ),
       );
+      final document = html.parse(response.data);
+      final tBody = document.getElementsByTagName('tbody');
+      debugPrint('tbody len = ${tBody.length}');
+      if (tBody.length > 0) {
+        var tds = tBody[1].getElementsByTagName('td');
+        return callback?.onSuccess(
+          UserInfo(
+            id: tds[1].text,
+            name: tds[3].text,
+            className: tds[5].text,
+          ),
+        );
+      }
+    } on DioError catch (e) {
+      callback?.onFailure(e);
+    } on Exception catch (e) {
+      callback?.onError(GeneralResponse.unknownError());
+      throw e;
     }
     return null;
   }
