@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:ap_common/scaffold/login_scaffold.dart';
+import 'package:ap_common_firbase/utils/firebase_analytics_utils.dart';
 import 'package:ntust_ap/api/stu_helper.dart';
 import 'package:ntust_ap/config/constants.dart';
 import 'package:ntust_ap/utils/captcha_utils.dart';
@@ -46,6 +47,8 @@ class LoginPageState extends State<LoginPage> {
 
   @override
   void initState() {
+    FirebaseAnalyticsUtils.instance
+        .setCurrentScreen("LoginPage", "login_page.dart");
     super.initState();
     _getPreference();
     _getValidationCode();

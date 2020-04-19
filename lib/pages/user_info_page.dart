@@ -1,5 +1,6 @@
 import 'package:ap_common/models/user_info.dart';
 import 'package:ap_common/scaffold/user_info_scaffold.dart';
+import 'package:ap_common_firbase/utils/firebase_analytics_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:ntust_ap/api/stu_helper.dart';
 
@@ -19,7 +20,8 @@ class _UserInfoPageState extends State<UserInfoPage> {
 
   @override
   void initState() {
-//    FA.setCurrentScreen("UserInfoPage", "user_info_page.dart");
+    FirebaseAnalyticsUtils.instance
+        .setCurrentScreen("UserInfoPage", "user_info_page.dart");
     userInfo = widget.userInfo;
     super.initState();
   }

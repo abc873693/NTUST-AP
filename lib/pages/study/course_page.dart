@@ -4,6 +4,7 @@ import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
+import 'package:ap_common_firbase/utils/firebase_analytics_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:ntust_ap/api/course_helper.dart';
 import 'package:ap_common/models/course_data.dart';
@@ -29,6 +30,8 @@ class _CoursePageState extends State<CoursePage> {
       _getCourse();
     else
       _login();
+    FirebaseAnalyticsUtils.instance
+        .setCurrentScreen("CoursePage", "course_page.dart");
     super.initState();
   }
 

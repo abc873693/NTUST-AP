@@ -7,6 +7,7 @@ import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/option_dialog.dart';
 import 'package:ap_common/widgets/setting_page_widgets.dart';
+import 'package:ap_common_firbase/utils/firebase_analytics_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:ntust_ap/api/course_helper.dart';
 import 'package:ntust_ap/config/constants.dart';
@@ -37,7 +38,8 @@ class SettingPageState extends State<SettingPage> {
   @override
   void initState() {
     super.initState();
-//    FA.setCurrentScreen("SettingPage", "setting_page.dart");
+    FirebaseAnalyticsUtils.instance
+        .setCurrentScreen("SettingPage", "setting_page.dart");
     _getPreference();
   }
 
