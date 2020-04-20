@@ -181,7 +181,7 @@ class CourseHelper {
             units: td[2].text,
             required: td[3].getElementsByTagName('span').first.text,
             instructors: [td[4].text],
-            color: ApColors.colors[i - 1][300],
+            detailIndex: i - 1,
             times: '',
           ),
         );
