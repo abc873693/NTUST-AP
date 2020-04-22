@@ -181,7 +181,6 @@ class CourseHelper {
             units: td[2].text,
             required: td[3].getElementsByTagName('span').first.text,
             instructors: [td[4].text],
-            detailIndex: i - 1,
             times: '',
           ),
         );
@@ -213,14 +212,17 @@ class CourseHelper {
             );
         }
       }
-      for (var courseDetail in courseData.courses) {
+      for (var i = 0; i < courseData.courses.length; i++) {
+        final courseDetail = courseData.courses[i];
         for (var weekIndex = 0;
             weekIndex < courseData.courseTables.weeks.length;
             weekIndex++) {
           List<String> sections = [];
           for (var course in courseData.courseTables.weeks[weekIndex]) {
-            if (course.title == courseDetail.title)
+            if (course.title == courseDetail.title) {
               sections.add(course.date.section);
+              course.detailIndex = i;
+            }
           }
           if (sections.length > 0) {
             courseDetail.times +=
