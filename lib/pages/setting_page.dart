@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:ap_common/models/ap_support_language.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
@@ -76,34 +74,7 @@ class SettingPageState extends State<SettingPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            SettingTitle(text: ap.notificationItem),
-            SettingSwitch(
-              text: ap.courseNotify,
-              subText: ap.courseNotifyHint,
-              value: courseNotify,
-              onChanged: (state) async {
-                ApUtils.showToast(
-                  context,
-                  ap.functionNotOpen,
-                );
-//            FA.logAction('notify_course', 'create');
-//            setState(() {
-//              courseNotify = !courseNotify;
-//            });
-//            if (courseNotify)
-//              _setupCourseNotify(context);
-//            else {
-//              await Utils.cancelCourseNotify();
-//            }
-//            FA.logAction('notify_course', 'create', message: '$courseNotify');
-//            prefs.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
-              },
-            ),
-            Container(
-              color: Colors.grey,
-              height: 0.5,
-            ),
-            SettingTitle(text: ap.otherSettings),
+            SettingTitle(text: ap.environmentSettings),
             SettingItem(
               text: ap.language,
               subText: languageTextList[languageIndex],
@@ -170,20 +141,7 @@ class SettingPageState extends State<SettingPage> {
               text: ap.feedback,
               subText: ap.feedbackViaFacebook,
               onTap: () {
-//                if (Platform.isAndroid)
-//                  Utils.launchUrl('fb://messaging/${Constants.FANS_PAGE_ID}')
-//                      .catchError((onError) =>
-//                          Utils.launchUrl(Constants.FANS_PAGE_URL));
-//                else if (Platform.isIOS)
-//                  Utils.launchUrl(
-//                          'fb-messenger://user-thread/${Constants.FANS_PAGE_ID}')
-//                      .catchError((onError) =>
-//                          Utils.launchUrl(Constants.FANS_PAGE_URL));
-//                else {
-//                  Utils.launchUrl(Constants.FANS_PAGE_URL).catchError(
-//                      (onError) =>
-//                          ApUtils.showToast(context, ap.platformError));
-//                }
+                ApUtils.launchFbFansPage(context, Constants.FANS_PAGE_ID);
                 FirebaseAnalyticsUtils.instance.logAction('feedback', 'click');
               },
             ),
