@@ -52,7 +52,6 @@ class LoginPageState extends State<LoginPage> {
     super.initState();
     _getPreference();
     _getValidationCode();
-    //TODO get system storage permission
   }
 
   @override
@@ -77,7 +76,7 @@ class LoginPageState extends State<LoginPage> {
           textInputAction: TextInputAction.next,
           controller: _password,
           focusNode: _passwordFocusNode,
-          nextFocusNode: _validationCodeFocusNode,
+          nextFocusNode: _monthFocusNode,
           labelText: app.password,
         ),
         Row(
@@ -264,8 +263,8 @@ class LoginPageState extends State<LoginPage> {
       StuHelper.instance.login(
         username: _username.text,
         password: _password.text,
-        month: _month.text,
-        day: _day.text,
+        month: _month.text.length == 2 ? _month.text : '0${_month.text}',
+        day: _day.text.length == 2 ? _day.text : '0${_day.text}',
         idCard: _idCard.text,
         validationCode: _validationCode.text,
         callback: GeneralCallback<GeneralResponse>(
