@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:ap_common/callback/general_callback.dart';
+import 'package:ap_common/models/course_notify_data.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
@@ -20,6 +21,7 @@ class CoursePage extends StatefulWidget {
 
 class _CoursePageState extends State<CoursePage> {
   CourseData courseData;
+  CourseNotifyData notifyData;
 
   CourseState _state = CourseState.loading;
 
@@ -44,11 +46,13 @@ class _CoursePageState extends State<CoursePage> {
         _getCourse();
       },
       isShowSearchButton: false,
+      notifyData: notifyData,
     );
   }
 
   void _loadCache() async {
     courseData = CourseData.load('latest');
+    notifyData = CourseNotifyData.load('latest');
     if (courseData != null && courseData.courseTables.timeCode != null)
       setState(() => _state = CourseState.finish);
   }
