@@ -11,20 +11,17 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
-  ap_common:
-    git:
-      url: https://github.com/abc873693/ap_common
-      ref: v0.1.1
+  ap_common: 0.1.4
   #    path: ../../GitHub-NKUST-ITC/ap_common
   ap_common_firbase:
     git:
       url: https://github.com/abc873693/ap_common_firebase
-  #          ref: v0.0.1
+#      ref: v0.0.1
   #    path: ../ap_common_firebase
   ap_common_plugin:
     git:
       url: https://github.com/abc873693/ap_common_plugin
-  #      ref: v0.0.2
+      ref: v0.0.3
   #    path: ../ap_common_plugin
   http: 0.12.0+4
   dio: 3.0.9

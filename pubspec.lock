@@ -4,18 +4,16 @@ packages:
   ap_common:
     dependency: "direct main"
     description:
-      path: "."
-      ref: "v0.1.1"
-      resolved-ref: "4128bfa05d3c21fd57fc244e9be0463f5af4dd63"
-      url: "https://github.com/abc873693/ap_common"
-    source: git
-    version: "0.1.1"
+      name: ap_common
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.4"
   ap_common_firbase:
     dependency: "direct main"
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "5d9fdb04139460f0503e8f4d5be0471e697b52e6"
+      resolved-ref: "096441f4c16d344272cb4518be3dda56c7b8fbed"
       url: "https://github.com/abc873693/ap_common_firebase"
     source: git
     version: "0.0.1"
@@ -23,11 +21,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: HEAD
-      resolved-ref: a927164d2c4b0fbb7fe160b7495755b4f39f1211
+      ref: "v0.0.3"
+      resolved-ref: "0f91379b89234ad0494a7417492c1ddab40d9959"
       url: "https://github.com/abc873693/ap_common_plugin"
     source: git
-    version: "0.0.2"
+    version: "0.0.3"
   archive:
     dependency: transitive
     description:
@@ -184,6 +182,20 @@ packages:
     dependency: transitive
     description:
       name: flutter_cupertino_localizations
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.1"
+  flutter_local_notifications:
+    dependency: transitive
+    description:
+      name: flutter_local_notifications
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.4.1"
+  flutter_local_notifications_platform_interface:
+    dependency: transitive
+    description:
+      name: flutter_local_notifications_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.1"
@@ -517,4 +529,4 @@ packages:
     version: "3.5.0"
 sdks:
   dart: ">=2.7.0 <3.0.0"
-  flutter: ">=1.12.13+hotfix.4 <2.0.0"
+  flutter: ">=1.12.13+hotfix.5 <2.0.0"
