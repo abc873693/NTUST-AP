@@ -47,6 +47,22 @@ class _CoursePageState extends State<CoursePage> {
       },
       isShowSearchButton: false,
       notifyData: notifyData,
+      onNotifyClick: (courseNotify, _state) {
+        switch (_state) {
+          case CourseNotifyState.schedule:
+            FirebaseAnalyticsUtils.instance.logAction(
+              'notify_course_create',
+              'create',
+            );
+            break;
+          case CourseNotifyState.cancel:
+            FirebaseAnalyticsUtils.instance.logAction(
+              'notify_course_cancel',
+              'cancel',
+            );
+            break;
+        }
+      },
     );
   }
 

@@ -184,7 +184,7 @@ class SettingPageState extends State<SettingPage> {
 //                      (onError) =>
 //                          ApUtils.showToast(context, ap.platformError));
 //                }
-//                FA.logAction('feedback', 'click');
+                FirebaseAnalyticsUtils.instance.logAction('feedback', 'click');
               },
             ),
             SettingItem(
