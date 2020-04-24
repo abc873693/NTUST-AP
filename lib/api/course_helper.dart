@@ -194,11 +194,6 @@ class CourseHelper {
         final section = td[0].text;
         final times = td[1].text.split(String.fromCharCode(10));
         courseData.courseTables.timeCode.add(section);
-        final date = Date(
-          section: section,
-          startTime: times[1].replaceAll(' ', '').replaceAll('～', ''),
-          endTime: times[2].replaceAll(' ', ''),
-        );
         for (var weekIndex = 0;
             weekIndex < courseData.courseTables.weeks.length;
             weekIndex++) {
@@ -206,7 +201,11 @@ class CourseHelper {
             courseData.courseTables.weeks[weekIndex].add(
               parseCourse(
                 title: td[weekIndex + 2].text,
-                date: date,
+                date: Date(
+                  section: section,
+                  startTime: times[1].trim().replaceAll('～', ''),
+                  endTime: times[2].trim(),
+                ),
                 courseData: courseData,
               ),
             );
