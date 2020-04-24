@@ -137,12 +137,12 @@ class HomePageState extends State<HomePage> {
                 page: CoursePage(),
                 needLogin: !isLogin,
               ),
-//              DrawerSubItem(
-//                icon: ApIcon.assignment,
-//                title: app.score,
-//                page: ScorePage(),
-//                needLogin: !isLogin,
-//              ),
+              DrawerSubItem(
+                icon: ApIcon.assignment,
+                title: ap.score,
+                page: ScorePage(),
+                needLogin: !isLogin,
+              ),
             ],
           ),
           DrawerItem(
