@@ -173,7 +173,7 @@ class CourseHelper {
       var trs = tBody[2].getElementsByTagName('tr');
       for (var i = 1; i < trs.length; i++) {
         final td = trs[i].getElementsByTagName('td');
-        var title = parserText(td[1].text);
+        var title = td[1].text.trim();
         courseData.courses.add(
           CourseDetail(
             code: td[0].text,
@@ -237,24 +237,16 @@ class CourseHelper {
     return courseData;
   }
 
-  String parserText(String text) {
-    String newText = text.replaceAll(String.fromCharCode(10), '');
-    newText = newText.replaceAll(' ', '');
-    return newText;
-  }
-
   Course parseCourse({
     String title,
     Date date,
     CourseData courseData,
   }) {
     var textList = title.split(String.fromCharCode(10));
-    title = textList[1];
-    title = title.replaceAll(' ', '');
     final course = Course(
-      title: title,
+      title: textList[1].trim(),
       location: Location(
-        building: parserText(textList[2]),
+        building: textList[2].trim(),
         room: '',
       ),
       date: date,
