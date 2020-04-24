@@ -23,6 +23,8 @@ class ScorePage extends StatefulWidget {
 }
 
 class _ScorePageState extends State<ScorePage> {
+  ApLocalizations ap;
+
   ScoreData scoreData;
 
   ScoreState _state = ScoreState.loading;
@@ -37,19 +39,24 @@ class _ScorePageState extends State<ScorePage> {
 
   @override
   Widget build(BuildContext context) {
+    ap = ApLocalizations.of(context);
     return ScoreScaffold(
       state: _state,
       scoreData: scoreData,
-      middleTitle: '學分',
-      isShowConductScore: false,
-      isShowCredit: true,
+      middleTitle: ap.credits,
+      isShowSearchButton: false,
+      details: (scoreData == null)
+          ? null
+          : [
+              '${ap.average}：${scoreData.detail.average ?? ''}',
+              '${ap.classRank}：${scoreData.detail.classRank ?? ''}',
+              '${ap.departmentRank}：${scoreData.detail.departmentRank ?? ''}',
+            ],
       onRefresh: () async {
         _getScore();
       },
     );
   }
-
-  String validationCode = '';
 
   void _getScore() async {
     scoreData = await StuHelper.instance.getScore();
