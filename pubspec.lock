@@ -7,7 +7,7 @@ packages:
       name: ap_common
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.1.4"
+    version: "0.1.5"
   ap_common_firbase:
     dependency: "direct main"
     description:
