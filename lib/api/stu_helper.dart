@@ -3,15 +3,14 @@ import 'dart:typed_data';
 
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/ap_support_language.dart';
+import 'package:ap_common/models/score_data.dart';
 import 'package:ap_common/models/user_info.dart';
-import 'package:ap_common/utils/preferences.dart';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/widgets.dart';
 import 'package:html/parser.dart' as html;
 import 'package:cookie_jar/cookie_jar.dart';
-import 'package:ntust_ap/config/constants.dart';
 
 class StuHelper {
   static const BASE_PATH = 'https://stuinfo8.ntust.edu.tw';
@@ -19,7 +18,8 @@ class StuHelper {
   static const LOGIN = '/ntust_stu/stu.aspx';
   static const VALIDATE_CODE = '/ntust_stu/VCode.aspx';
   static const MENU = '/ntust_stu/stu_menu.aspx';
-  static const CHANGE_LANGUAGE = '/Home/SetCulture';
+  static const SCORE = '/ntust_stu/Query_Score.aspx';
+
   static Dio dio;
 
   static CookieJar cookieJar;
@@ -202,6 +202,62 @@ class StuHelper {
           ),
         );
       }
+    } on DioError catch (e) {
+      callback?.onFailure(e);
+    } on Exception catch (e) {
+      callback?.onError(GeneralResponse.unknownError());
+      throw e;
+    }
+    return null;
+  }
+
+  Future<ScoreData> getScore({
+    GeneralCallback<ScoreData> callback,
+  }) async {
+    try {
+      var response = await dio.get(
+        '$BASE_PATH$SCORE',
+        options: Options(
+          responseType: ResponseType.plain,
+        ),
+      );
+      final document = html.parse(response.data);
+      var scoreData = ScoreData(
+        scores: [],
+        detail: Detail(classRank: '', average: 22.0, classPercentage: 2.1),
+      );
+      final tBody = document.getElementsByTagName('tbody');
+      debugPrint('tbody len = ${tBody.length}');
+      if (tBody.length > 0) {
+        var trs = tBody[4].getElementsByTagName('tr');
+        for (var i = 1; i < trs.length; i++) {
+          var tds = trs[i].getElementsByTagName('td');
+          print(tds[2].text);
+          scoreData.scores.add(
+            Score(
+              courseNumber: tds[1].text,
+              title: tds[2].text,
+              units: tds[3].text,
+              middleScore: tds[3].text,
+              finalScore: tds[4].text.length > 5 ? '' : tds[4].text,
+              remark: tds[5].text + tds[6].text,
+            ),
+          );
+        }
+      }
+      final scoreDetail = document.getElementById('score_list');
+      final newLine = String.fromCharCode(32);
+      final ranks = scoreDetail.text.split('$newLine$newLine');
+      var text = ranks[0] + ranks[1];
+      RegExp exp = RegExp(r"(.+)學年度第(.+)學期學期.+\((.+)\)排名為第(.+)名，學期平均成績為：(.+)");
+      final matches = exp.allMatches(text).first;
+      //系排 和 尚未公告提示字
+      scoreData.detail = Detail(
+        average: double.parse(matches.group(5).trim()),
+        classRank: matches.group(4).trim(),
+        classPercentage: 0.0,
+      );
+      return callback == null ? scoreData : callback?.onSuccess(scoreData);
     } on DioError catch (e) {
       callback?.onFailure(e);
     } on Exception catch (e) {
