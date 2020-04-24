@@ -25,6 +25,7 @@ import 'package:ntust_ap/api/github_helper.dart';
 import 'package:ntust_ap/api/stu_helper.dart';
 import 'package:ntust_ap/config/constants.dart';
 import 'package:ntust_ap/pages/setting_page.dart';
+import 'package:ntust_ap/pages/study/score_page.dart';
 import 'package:ntust_ap/pages/user_info_page.dart';
 import 'package:ntust_ap/resourses/ap_assets.dart';
 import 'package:ntust_ap/utils/app_localizations.dart';
@@ -245,11 +246,10 @@ class HomePageState extends State<HomePage> {
             ApUtils.showToast(context, ap.notLoginHint);
           break;
         case 1:
-//          if (isLogin)
-//            ApUtils.pushCupertinoStyle(context, ScorePage());
-//          else
-//            ApUtils.showToast(context, ap.notLoginHint);
-          ApUtils.showToast(context, ap.functionNotOpen);
+          if (isLogin)
+            ApUtils.pushCupertinoStyle(context, ScorePage());
+          else
+            ApUtils.showToast(context, ap.notLoginHint);
           break;
       }
     });
