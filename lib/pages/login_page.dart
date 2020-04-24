@@ -88,7 +88,7 @@ class LoginPageState extends State<LoginPage> {
                 controller: _month,
                 focusNode: _monthFocusNode,
                 nextFocusNode: _dayFocusNode,
-                keyboardType: TextInputType.datetime,
+                keyboardType: TextInputType.number,
                 labelText: '出生月',
                 maxLength: 2,
                 onChanged: (text) {
@@ -102,7 +102,7 @@ class LoginPageState extends State<LoginPage> {
             SizedBox(width: 8.0),
             Expanded(
               child: ApTextField(
-                keyboardType: TextInputType.datetime,
+                keyboardType: TextInputType.number,
                 controller: _day,
                 focusNode: _dayFocusNode,
                 nextFocusNode: _idCardFocusNode,
