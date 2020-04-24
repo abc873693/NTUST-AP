@@ -248,14 +248,17 @@ class StuHelper {
       final scoreDetail = document.getElementById('score_list');
       final newLine = String.fromCharCode(32);
       final ranks = scoreDetail.text.split('$newLine$newLine');
-      var text = ranks[0] + ranks[1];
+      var classRankText = ranks[0] + ranks[1];
+      var departmentRankText = ranks[2] + ranks[3];
+      print(departmentRankText);
       RegExp exp = RegExp(r"(.+)學年度第(.+)學期學期.+\((.+)\)排名為第(.+)名，學期平均成績為：(.+)");
-      final matches = exp.allMatches(text).first;
+      final classRank = exp.allMatches(classRankText).first;
+      final departmentRank = exp.allMatches(departmentRankText).first;
       //系排 和 尚未公告提示字
       scoreData.detail = Detail(
-        average: double.parse(matches.group(5).trim()),
-        classRank: matches.group(4).trim(),
-        classPercentage: 0.0,
+        average: double.parse(classRank.group(5).trim()),
+        classRank: classRank.group(4).trim(),
+        departmentRank: departmentRank.group(4).trim(),
       );
       return callback == null ? scoreData : callback?.onSuccess(scoreData);
     } on DioError catch (e) {
