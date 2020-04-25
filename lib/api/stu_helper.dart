@@ -211,8 +211,8 @@ class StuHelper {
     return null;
   }
 
-  Future<ScoreData> getScore({
-    GeneralCallback<ScoreData> callback,
+  Future<Map<String, ScoreData>> getScore({
+    GeneralCallback<Map<String, ScoreData>> callback,
   }) async {
     try {
       var response = await dio.get(
@@ -222,18 +222,15 @@ class StuHelper {
         ),
       );
       final document = html.parse(response.data);
-      var scoreData = ScoreData(
-        scores: [],
-        detail: Detail(classRank: '', average: 22.0, classPercentage: 2.1),
-      );
-      final tBody = document.getElementsByTagName('tbody');
-      debugPrint('tbody len = ${tBody.length}');
-      if (tBody.length > 0) {
-        var trs = tBody[4].getElementsByTagName('tr');
+      Map<String, ScoreData> scoreDataMap = Map();
+      final currentScore = document.getElementById('Datagrid4');
+      var currentScores = List<Score>();
+      if (currentScore != null) {
+        var trs = currentScore.getElementsByTagName('tr');
         for (var i = 1; i < trs.length; i++) {
           var tds = trs[i].getElementsByTagName('td');
-          print(tds[2].text);
-          scoreData.scores.add(
+//          print(tds[2].text);
+          currentScores.add(
             Score(
               courseNumber: tds[1].text,
               title: tds[2].text,
@@ -245,22 +242,64 @@ class StuHelper {
           );
         }
       }
-      final scoreDetail = document.getElementById('score_list');
-      final newLine = String.fromCharCode(32);
-      final ranks = scoreDetail.text.split('$newLine$newLine');
-      var classRankText = ranks[0] + ranks[1];
-      var departmentRankText = ranks[2] + ranks[3];
-      print(departmentRankText);
-      RegExp exp = RegExp(r"(.+)學年度第(.+)學期學期.+\((.+)\)排名為第(.+)名，學期平均成績為：(.+)");
-      final classRank = exp.allMatches(classRankText).first;
-      final departmentRank = exp.allMatches(departmentRankText).first;
-      //系排 和 尚未公告提示字
-      scoreData.detail = Detail(
-        average: double.parse(classRank.group(5).trim()),
-        classRank: classRank.group(4).trim(),
-        departmentRank: departmentRank.group(4).trim(),
-      );
-      return callback == null ? scoreData : callback?.onSuccess(scoreData);
+      final pastScore = document.getElementById('DataGrid1');
+      if (pastScore != null) {
+        var trs = pastScore.getElementsByTagName('tr');
+        for (var i = trs.length - 1; i > 0; i--) {
+          var tds = trs[i].getElementsByTagName('td');
+          String semester = tds[1].text.trim();
+          if (scoreDataMap[semester] == null)
+            scoreDataMap[semester] = ScoreData(
+              scores: [],
+              detail: Detail(),
+            );
+          scoreDataMap[semester].scores.add(
+                Score(
+                  courseNumber: tds[2].text,
+                  title: tds[3].text,
+                  units: tds[4].text,
+                  middleScore: tds[4].text,
+                  finalScore: tds[5].text.length > 5 ? '' : tds[5].text,
+                  remark: tds[6].text + tds[7].text,
+                ),
+              );
+        }
+      }
+      final scoreDetail = document
+          .getElementById('score_list')
+          .getElementsByTagName('font')
+          .first;
+      if (scoreDetail != null) {
+        final ranks = scoreDetail.innerHtml.split('<br>');
+        final exp = RegExp(r"(.+)學年度第(.+)學期學期.+\((.+)\)排名為第(.+)名，學期平均成績為：(.+)");
+        for (var rank in ranks.reversed) {
+          print(rank.length);
+          if (rank.length == 0) continue;
+          final data = exp.allMatches(rank).first;
+          if (data != null) {
+            final semester = '${data.group(1).trim()}${data.group(2).trim()}';
+            if (scoreDataMap[semester] == null)
+              scoreDataMap[semester] = ScoreData(
+                scores: [],
+                detail: Detail(),
+              );
+            scoreDataMap[semester].detail
+              ..average = double.parse(data.group(5).trim());
+            final type = data.group(3).trim();
+            if (type == '系')
+              scoreDataMap[semester].detail.departmentRank =
+                  data.group(4).trim();
+            else if (type == '班')
+              scoreDataMap[semester].detail.classRank = data.group(4).trim();
+          }
+        }
+        if (currentScores.length != 0 &&
+            scoreDataMap.values.last.scores.length == 0)
+          scoreDataMap.values.last.scores = currentScores;
+      }
+      return callback == null
+          ? scoreDataMap
+          : callback?.onSuccess(scoreDataMap);
     } on DioError catch (e) {
       callback?.onFailure(e);
     } on Exception catch (e) {

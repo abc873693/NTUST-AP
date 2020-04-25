@@ -22,12 +22,24 @@ class ScorePage extends StatefulWidget {
   _ScorePageState createState() => _ScorePageState();
 }
 
-class _ScorePageState extends State<ScorePage> {
+class _ScorePageState extends State<ScorePage>
+    with SingleTickerProviderStateMixin {
   ApLocalizations ap;
 
-  ScoreData scoreData;
+  TabController _tabController;
+
+  List<String> titles;
+
+  Map<String, ScoreData> scoreDataMap;
 
   ScoreState _state = ScoreState.loading;
+
+  int index = 0;
+
+  ScoreData get scoreData =>
+      (scoreDataMap != null && _tabController != null && titles != null)
+          ? scoreDataMap[titles[index]]
+          : null;
 
   @override
   void initState() {
@@ -41,11 +53,28 @@ class _ScorePageState extends State<ScorePage> {
   Widget build(BuildContext context) {
     ap = ApLocalizations.of(context);
     return ScoreScaffold(
+      bottom: scoreDataMap == null
+          ? null
+          : TabBar(
+              isScrollable: true,
+              controller: _tabController,
+              tabs: [
+                for (var semester in titles)
+                  Tab(
+                    text: semester,
+                  )
+              ],
+              onTap: (index) {
+                setState(() {
+                  this.index = index;
+                });
+              },
+            ),
       state: _state,
       scoreData: scoreData,
       middleTitle: ap.credits,
       isShowSearchButton: false,
-      details: (scoreData == null)
+      details: (scoreData == null || scoreData.detail == null)
           ? null
           : [
               '${ap.average}：${scoreData.detail.average ?? ''}',
@@ -59,12 +88,17 @@ class _ScorePageState extends State<ScorePage> {
   }
 
   void _getScore() async {
-    scoreData = await StuHelper.instance.getScore();
+    scoreDataMap = await StuHelper.instance.getScore();
     if (mounted) {
       setState(() {
-        if (scoreData != null)
+        if (scoreDataMap != null) {
+          _tabController = TabController(
+            vsync: this,
+            length: scoreDataMap.length,
+          );
+          titles = scoreDataMap.keys.toList();
           _state = ScoreState.finish;
-        else
+        } else
           _state = ScoreState.error;
       });
     }
