@@ -273,7 +273,6 @@ class StuHelper {
         final ranks = scoreDetail.innerHtml.split('<br>');
         final exp = RegExp(r"(.+)學年度第(.+)學期學期.+\((.+)\)排名為第(.+)名，學期平均成績為：(.+)");
         for (var rank in ranks.reversed) {
-          print(rank.length);
           if (rank.length == 0) continue;
           final data = exp.allMatches(rank).first;
           if (data != null) {
