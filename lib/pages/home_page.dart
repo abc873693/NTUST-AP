@@ -12,12 +12,15 @@ import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/ap_drawer.dart';
+import 'package:ap_common/widgets/default_dialog.dart';
 import 'package:ap_common_firbase/constants/fiirebase_constants.dart';
 import 'package:ap_common_firbase/utils/firebase_analytics_utils.dart';
+import 'package:ap_common_firbase/utils/firebase_remote_config_utils.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:package_info/package_info.dart';
 import 'package:ap_common/models/new_response.dart';
 import 'package:ap_common/models/user_info.dart';
 import 'package:ap_common/widgets/yes_no_dialog.dart';
@@ -404,59 +407,34 @@ class HomePageState extends State<HomePage> {
   }
 
   _checkUpdate() async {
-//    PackageInfo packageInfo = await PackageInfo.fromPlatform();
-//    await Future.delayed(Duration(milliseconds: 50));
-//    var currentVersion =
-//        Preferences.getString(Constants.PREF_CURRENT_VERSION, '');
-//    if (currentVersion != packageInfo.buildNumber) {
-//      showDialog(
-//        context: context,
-//        builder: (BuildContext context) => DefaultDialog(
-//          title: app.updateNoteTitle,
-//          contentWidget: Text(
-//            "v${packageInfo.version}\n"
-//            "${app.updateNoteContent}",
-//            textAlign: TextAlign.center,
-//            style: TextStyle(color: ApTheme.of(context).grey),
-//          ),
-//          actionText: app.iKnow,
-//          actionFunction: () =>
-//              Navigator.of(context, rootNavigator: true).pop(),
-//        ),
-//      );
-//      Preferences.setString(
-//        Constants.PREF_CURRENT_VERSION,
-//        packageInfo.buildNumber,
-//      );
-//    }
-//    if (Constants.isInDebugMode) {
-//      final RemoteConfig remoteConfig = await RemoteConfig.instance;
-//      try {
-//        await remoteConfig.fetch(expiration: const Duration(seconds: 10));
-//        await remoteConfig.activateFetched();
-//      } on FetchThrottledException catch (exception) {} catch (exception) {} finally {
-//        String versionContent = '';
-//        switch (AppLocalizations.locale.languageCode) {
-//          case ApSupportLanguageConstants.ZH:
-//            versionContent =
-//                remoteConfig.getString(Constants.NEW_VERSION_CONTENT_ZH);
-//            break;
-//          case ApSupportLanguageConstants.EN:
-//          default:
-//            versionContent =
-//                remoteConfig.getString(Constants.NEW_VERSION_CONTENT_EN);
-//            break;
-//        }
-//        ApUtils.showNewVersionDialog(
-//          context: context,
-//          newVersionCode: remoteConfig.getInt(Constants.APP_VERSION),
-//          iOSAppId: '146752219',
-//          defaultUrl: 'https://www.facebook.com/NKUST.ITC/',
-//          newVersionContent: versionContent,
-//          appName: AppLocalizations.of(context).appName,
-//        );
-//      }
-//    }
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    await Future.delayed(Duration(milliseconds: 50));
+    var currentVersion =
+        Preferences.getString(Constants.PREF_CURRENT_VERSION, '');
+    if (currentVersion != packageInfo.buildNumber) {
+      DefaultDialog.showUpdateContent(
+        context,
+        "v${packageInfo.version}\n"
+        "${app.updateNoteContent}",
+      );
+      Preferences.setString(
+        Constants.PREF_CURRENT_VERSION,
+        packageInfo.buildNumber,
+      );
+    }
+    if (!Constants.isInDebugMode) {
+      VersionInfo versionInfo =
+          await FirebaseRemoteConfigUtils.getVersionInfo();
+      if (versionInfo != null)
+        ApUtils.showNewVersionDialog(
+          context: context,
+          newVersionCode: versionInfo.code,
+          iOSAppId: '1508879766',
+          defaultUrl: 'https://www.facebook.com/NKUST.ITC/',
+          newVersionContent: versionInfo.content,
+          appName: AppLocalizations.of(context).appName,
+        );
+    }
   }
 
   _showLoginPage() async {
