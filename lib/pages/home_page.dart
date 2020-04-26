@@ -20,6 +20,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:ntust_ap/api/course_helper.dart';
 import 'package:ntust_ap/pages/school_map_page.dart';
 import 'package:package_info/package_info.dart';
 import 'package:ap_common/models/new_response.dart';
@@ -204,7 +205,8 @@ class HomePageState extends State<HomePage> {
                 Navigator.of(context).pop();
                 isLogin = false;
                 Preferences.setBool(Constants.PREF_AUTO_LOGIN, false);
-                //TODO clear session
+                CourseHelper.instance.logout();
+                StuHelper.instance.logout();
                 _checkLoginState();
               },
               title: Text(

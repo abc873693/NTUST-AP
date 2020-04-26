@@ -29,9 +29,7 @@ class StuHelper {
   static StuHelper get instance {
     if (_instance == null) {
       _instance = StuHelper();
-      cookieJar = CookieJar();
       dio = Dio();
-      dio.interceptors.add(CookieManager(cookieJar));
       if (Platform.isAndroid) {
         (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
             (client) {
@@ -40,13 +38,23 @@ class StuHelper {
           return client;
         };
       }
-      cookieJar.loadForRequest(Uri.parse(BASE_PATH));
+      initCookiesJar();
 //      _instance.setLanguage(
 //        Preferences.getString(
 //            Constants.PREF_LANGUAGE_CODE, ApSupportLanguage.zh.code),
 //      );
     }
     return _instance;
+  }
+
+  static initCookiesJar() {
+    cookieJar = CookieJar();
+    dio.interceptors.add(CookieManager(cookieJar));
+    cookieJar.loadForRequest(Uri.parse(BASE_PATH));
+  }
+
+  void logout() {
+    initCookiesJar();
   }
 
   String language(String languageCode) {

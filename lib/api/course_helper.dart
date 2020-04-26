@@ -4,7 +4,6 @@ import 'dart:typed_data';
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/ap_support_language.dart';
 import 'package:ap_common/models/course_data.dart';
-import 'package:ap_common/resources/ap_colors.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:dio/dio.dart';
@@ -32,16 +31,24 @@ class CourseHelper {
   static CourseHelper get instance {
     if (_instance == null) {
       _instance = CourseHelper();
-      cookieJar = CookieJar();
       dio = Dio();
-      dio.interceptors.add(CookieManager(cookieJar));
-      cookieJar.loadForRequest(Uri.parse(BASE_PATH));
+      initCookiesJar();
       _instance.setLanguage(
         Preferences.getString(
             Constants.PREF_LANGUAGE_CODE, ApSupportLanguage.zh.code),
       );
     }
     return _instance;
+  }
+
+  static initCookiesJar() {
+    cookieJar = CookieJar();
+    dio.interceptors.add(CookieManager(cookieJar));
+    cookieJar.loadForRequest(Uri.parse(BASE_PATH));
+  }
+
+  void logout() {
+    initCookiesJar();
   }
 
   String language(String languageCode) {
