@@ -136,39 +136,40 @@ class LoginPageState extends State<LoginPage> {
             ),
           ],
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            GestureDetector(
-              onTap: _getValidationCode,
-              child: Container(
-                width: 160.0,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: (bodyBytes != null)
-                      ? Image.memory(
-                          bodyBytes,
-                          fit: BoxFit.cover,
-                        )
-                      : Container(),
+        if (kIsWeb || !(Platform.isAndroid || Platform.isIOS))
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              GestureDetector(
+                onTap: _getValidationCode,
+                child: Container(
+                  width: 160.0,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: (bodyBytes != null)
+                        ? Image.memory(
+                            bodyBytes,
+                            fit: BoxFit.cover,
+                          )
+                        : Container(),
+                  ),
                 ),
               ),
-            ),
-            SizedBox(width: 8.0),
-            Expanded(
-              child: ApTextField(
-                textInputAction: TextInputAction.send,
-                controller: _validationCode,
-                focusNode: _validationCodeFocusNode,
-                onSubmitted: (text) {
-                  _login();
-                },
-                labelText: app.captcha,
+              SizedBox(width: 8.0),
+              Expanded(
+                child: ApTextField(
+                  textInputAction: TextInputAction.send,
+                  controller: _validationCode,
+                  focusNode: _validationCodeFocusNode,
+                  onSubmitted: (text) {
+                    _login();
+                  },
+                  labelText: app.captcha,
+                ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
         SizedBox(height: 8.0),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
