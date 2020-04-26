@@ -20,6 +20,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:ntust_ap/pages/school_map_page.dart';
 import 'package:package_info/package_info.dart';
 import 'package:ap_common/models/new_response.dart';
 import 'package:ap_common/models/user_info.dart';
@@ -147,6 +148,11 @@ class HomePageState extends State<HomePage> {
                 needLogin: !isLogin,
               ),
             ],
+          ),
+          DrawerItem(
+            icon: ApIcon.map,
+            title: ap.schoolMap,
+            page: SchoolMapPage(),
           ),
           DrawerItem(
             icon: ApIcon.face,
