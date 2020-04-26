@@ -89,7 +89,7 @@ class LoginPageState extends State<LoginPage> {
                 focusNode: _monthFocusNode,
                 nextFocusNode: _dayFocusNode,
                 keyboardType: TextInputType.number,
-                labelText: '出生月',
+                labelText: app.birthMonth,
                 maxLength: 2,
                 onChanged: (text) {
                   if (text.length == 2) {
@@ -106,7 +106,7 @@ class LoginPageState extends State<LoginPage> {
                 controller: _day,
                 focusNode: _dayFocusNode,
                 nextFocusNode: _idCardFocusNode,
-                labelText: '出生日',
+                labelText: app.birthDay,
                 maxLength: 2,
                 onChanged: (text) {
                   if (text.length == 2) {
@@ -124,7 +124,7 @@ class LoginPageState extends State<LoginPage> {
                 focusNode: _idCardFocusNode,
                 nextFocusNode: _validationCodeFocusNode,
                 keyboardType: TextInputType.number,
-                labelText: '身分證末四碼',
+                labelText: app.idCardLastCode,
                 onChanged: (text) {
                   if (text.length == 4) {
                     _idCardFocusNode.unfocus();
@@ -164,7 +164,7 @@ class LoginPageState extends State<LoginPage> {
                 onSubmitted: (text) {
                   _login();
                 },
-                labelText: '驗證碼',
+                labelText: app.captcha,
               ),
             ),
           ],
@@ -284,13 +284,13 @@ class LoginPageState extends State<LoginPage> {
               var message = "";
               switch (e.statusCode) {
                 case 4001:
-                  message = "驗證碼錯誤";
+                  message = app.captchaError;
                   break;
                 case 4002:
-                  message = "密碼輸入錯誤";
+                  message = app.passwordError;
                   break;
                 case 4003:
-                  message = "學號輸入錯誤";
+                  message = app.usernameError;
                   break;
                 case 4000:
                 default:
