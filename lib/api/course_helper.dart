@@ -130,6 +130,11 @@ class CourseHelper {
           statusCode: 4003,
           message: 'Username Error',
         );
+      } else if (rawHtml.contains("僅限在校生登入")) {
+        generalResponse = GeneralResponse(
+          statusCode: 4004,
+          message: 'Only in school',
+        );
       } else
         generalResponse = GeneralResponse(
           statusCode: 4000,

@@ -24,6 +24,8 @@ class _CoursePageState extends State<CoursePage> {
 
   CourseState _state = CourseState.loading;
 
+  String customStateHint;
+
   String get courseCacheKey => '${StuHelper.instance.username}'
       '_latest'
       '_${ApLocalizations.locale.languageCode}';
@@ -47,9 +49,13 @@ class _CoursePageState extends State<CoursePage> {
   Widget build(BuildContext context) {
     return CourseScaffold(
       state: _state,
+      customStateHint: customStateHint,
       courseData: courseData,
       onRefresh: () async {
-        _getCourse();
+        if (CourseHelper.isLogin)
+          _getCourse();
+        else
+          _login();
       },
       isShowSearchButton: false,
       notifyData: notifyData,
@@ -108,11 +114,17 @@ class _CoursePageState extends State<CoursePage> {
               CourseHelper.instance.captchaErrorCount = 0;
             }
           } else {
-            //TODO
+            setState(() {
+              _state = CourseState.custom;
+              customStateHint = ApLocalizations.of(context).onlySupportInSchool;
+            });
           }
         },
         onFailure: (DioError e) {
           ApUtils.showToast(context, ApLocalizations.dioError(context, e));
+          setState(() {
+            _state = CourseState.error;
+          });
         },
         onSuccess: (GeneralResponse data) async {
           await CourseHelper.instance.checkLogin();
