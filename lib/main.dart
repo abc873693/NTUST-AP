@@ -15,7 +15,9 @@ Future<void> main() async {
     key: Constants.key,
     iv: Constants.iv,
   );
-  if (!kIsWeb && (Platform.isIOS || Platform.isAndroid)) {
+  if (Constants.isInDebugMode) {
+    runApp(MyApp());
+  } else if (!kIsWeb && (Platform.isIOS || Platform.isAndroid)) {
     Crashlytics.instance.enableInDevMode = Constants.isInDebugMode;
 
     // Pass all uncaught errors from the framework to Crashlytics.
