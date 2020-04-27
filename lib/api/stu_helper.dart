@@ -262,6 +262,16 @@ class StuHelper {
             ),
           );
         }
+        final lastSemesterButton = document.getElementById('Button5');
+        String lastSemester;
+        if (lastSemesterButton != null) {
+          lastSemester = lastSemesterButton.attributes['value'].substring(0, 4);
+          if (scoreDataMap[lastSemester] == null && currentScores.length != 0)
+            scoreDataMap[lastSemester] = ScoreData(
+              scores: currentScores,
+              detail: Detail(),
+            );
+        }
       }
       final pastScore = document.getElementById('DataGrid1');
       if (pastScore != null) {
@@ -295,8 +305,9 @@ class StuHelper {
         final exp = RegExp(r"(.+)學年度第(.+)學期學期.+\((.+)\)排名為第(.+)名，學期平均成績為：(.+)");
         for (var rank in ranks.reversed) {
           if (rank.length == 0) continue;
-          final data = exp.allMatches(rank).first;
-          if (data != null) {
+          final list = exp.allMatches(rank);
+          if (list != null && list.length != 0) {
+            final data = exp.allMatches(rank)?.first;
             final semester = '${data.group(1).trim()}${data.group(2).trim()}';
             if (scoreDataMap[semester] == null)
               scoreDataMap[semester] = ScoreData(
@@ -313,9 +324,6 @@ class StuHelper {
               scoreDataMap[semester].detail.classRank = data.group(4).trim();
           }
         }
-        if (currentScores.length != 0 &&
-            scoreDataMap.values.last.scores.length == 0)
-          scoreDataMap.values.last.scores = currentScores;
       }
       return callback == null
           ? scoreDataMap
