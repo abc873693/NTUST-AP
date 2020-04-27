@@ -98,7 +98,17 @@ class _CoursePageState extends State<CoursePage> {
         onError: (GeneralResponse e) async {
           if (e.statusCode == 4001) {
             print('4001');
-            _login();
+            if (CourseHelper.instance.captchaErrorCount < 10)
+              _login();
+            else {
+              FirebaseAnalyticsUtils.instance.logCaptchaErrorEvent(
+                'course',
+                CourseHelper.instance.captchaErrorCount,
+              );
+              CourseHelper.instance.captchaErrorCount = 0;
+            }
+          } else {
+            //TODO
           }
         },
         onFailure: (DioError e) {
@@ -107,6 +117,11 @@ class _CoursePageState extends State<CoursePage> {
         onSuccess: (GeneralResponse data) async {
           await CourseHelper.instance.checkLogin();
           _getCourse();
+          FirebaseAnalyticsUtils.instance.logCaptchaErrorEvent(
+            'course',
+            CourseHelper.instance.captchaErrorCount,
+          );
+          CourseHelper.instance.captchaErrorCount = 0;
         },
       ),
     );

@@ -28,6 +28,8 @@ class CourseHelper {
 
   static bool isLogin = false;
 
+  int captchaErrorCount = 0;
+
   static CourseHelper get instance {
     if (_instance == null) {
       _instance = CourseHelper();
@@ -113,6 +115,7 @@ class CourseHelper {
       final rawHtml = response.data;
       GeneralResponse generalResponse;
       if (rawHtml.contains("圖形驗證碼錯誤")) {
+        captchaErrorCount++;
         generalResponse = GeneralResponse(
           statusCode: 4001,
           message: 'Validate Code Error',

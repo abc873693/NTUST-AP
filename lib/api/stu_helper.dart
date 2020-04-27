@@ -32,6 +32,8 @@ class StuHelper {
   String birthDay = '';
   String idCardLast = '';
 
+  int captchaErrorCount = 0;
+
   static StuHelper get instance {
     if (_instance == null) {
       _instance = StuHelper();
@@ -139,6 +141,7 @@ class StuHelper {
       final rawHtml = response.data;
       GeneralResponse generalResponse;
       if (rawHtml.contains("檢核碼輸入錯誤")) {
+        captchaErrorCount++;
         generalResponse = GeneralResponse(
           statusCode: 4001,
           message: 'Validate Code Error',
@@ -174,9 +177,9 @@ class StuHelper {
         else if (e.response.data.toString().contains('Object moved')) {
           this.username = username;
           this.password = password;
-          this.birthMonth = birthMonth;
-          this.birthDay = birthDay;
-          this.idCardLast = idCardLast;
+          this.birthMonth = month;
+          this.birthDay = day;
+          this.idCardLast = idCard;
           callback?.onSuccess(GeneralResponse.success());
         } else
           callback?.onFailure(e);

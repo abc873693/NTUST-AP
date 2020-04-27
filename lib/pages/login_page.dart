@@ -279,8 +279,18 @@ class LoginPageState extends State<LoginPage> {
                   bodyBytes: bodyBytes,
                   type: SystemType.stu,
                 );
-              }
-              _login();
+                if (StuHelper.instance.captchaErrorCount < 10)
+                  _login();
+                else {
+                  ApUtils.showToast(context, app.captchaError);
+                  FirebaseAnalyticsUtils.instance.logCaptchaErrorEvent(
+                    'stu',
+                    StuHelper.instance.captchaErrorCount,
+                  );
+                  StuHelper.instance.captchaErrorCount = 0;
+                }
+              } else
+                ApUtils.showToast(context, app.captchaError);
             } else {
               var message = "";
               switch (e.statusCode) {
@@ -322,7 +332,11 @@ class LoginPageState extends State<LoginPage> {
             }
             Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
             ApUtils.showToast(context, app.loginSuccess);
-            //TODO record validation error times
+            FirebaseAnalyticsUtils.instance.logCaptchaErrorEvent(
+              'stu',
+              StuHelper.instance.captchaErrorCount,
+            );
+            StuHelper.instance.captchaErrorCount = 0;
             Navigator.of(context).pop(true);
           },
         ),
