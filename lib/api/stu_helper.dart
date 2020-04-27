@@ -26,6 +26,12 @@ class StuHelper {
 
   static StuHelper _instance;
 
+  String username = '';
+  String password = '';
+  String birthMonth = '';
+  String birthDay = '';
+  String idCardLast = '';
+
   static StuHelper get instance {
     if (_instance == null) {
       _instance = StuHelper();
@@ -166,8 +172,12 @@ class StuHelper {
             ),
           );
         else if (e.response.data.toString().contains('Object moved')) {
-          print(callback?.onSuccess(GeneralResponse.success()).runtimeType);
-//          callback?.onSuccess(GeneralResponse.success());
+          this.username = username;
+          this.password = password;
+          this.birthMonth = birthMonth;
+          this.birthDay = birthDay;
+          this.idCardLast = idCardLast;
+          callback?.onSuccess(GeneralResponse.success());
         } else
           callback?.onFailure(e);
       } else {
