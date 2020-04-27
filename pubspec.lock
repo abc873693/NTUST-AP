@@ -12,8 +12,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: HEAD
-      resolved-ref: "096441f4c16d344272cb4518be3dda56c7b8fbed"
+      ref: "v0.0.1"
+      resolved-ref: a8dc4b543618f31dd2efc74b260f03b89942dc7a
       url: "https://github.com/abc873693/ap_common_firebase"
     source: git
     version: "0.0.1"
