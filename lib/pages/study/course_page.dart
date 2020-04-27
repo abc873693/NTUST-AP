@@ -4,14 +4,13 @@ import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/course_notify_data.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/ap_utils.dart';
-import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common_firbase/utils/firebase_analytics_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:ntust_ap/api/course_helper.dart';
 import 'package:ap_common/models/course_data.dart';
 import 'package:ap_common/scaffold/course_scaffold.dart';
 import 'package:flutter/material.dart';
-import 'package:ntust_ap/config/constants.dart';
+import 'package:ntust_ap/api/stu_helper.dart';
 import 'package:ntust_ap/utils/captcha_utils.dart';
 
 class CoursePage extends StatefulWidget {
@@ -24,6 +23,13 @@ class _CoursePageState extends State<CoursePage> {
   CourseNotifyData notifyData;
 
   CourseState _state = CourseState.loading;
+
+  String get courseCacheKey => '${StuHelper.instance.username}'
+      '_latest'
+      '_${ApLocalizations.locale.languageCode}';
+
+  String get courseNotifyCacheKey => '${StuHelper.instance.username}'
+      '_latest';
 
   @override
   void initState() {
@@ -47,6 +53,7 @@ class _CoursePageState extends State<CoursePage> {
       },
       isShowSearchButton: false,
       notifyData: notifyData,
+      courseNotifySaveKey: courseNotifyCacheKey,
       onNotifyClick: (courseNotify, _state) {
         switch (_state) {
           case CourseNotifyState.schedule:
@@ -67,8 +74,8 @@ class _CoursePageState extends State<CoursePage> {
   }
 
   void _loadCache() async {
-    courseData = CourseData.load('latest');
-    notifyData = CourseNotifyData.load('latest');
+    courseData = CourseData.load(courseCacheKey);
+    notifyData = CourseNotifyData.load(courseNotifyCacheKey);
     if (courseData != null && courseData.courseTables.timeCode != null)
       setState(() => _state = CourseState.finish);
   }
@@ -76,8 +83,6 @@ class _CoursePageState extends State<CoursePage> {
   String validationCode = '';
 
   void _login() async {
-    var username = Preferences.getString(Constants.PREF_USERNAME, '');
-    var password = Preferences.getStringSecurity(Constants.PREF_PASSWORD, '');
     var bodyBytes = await CourseHelper.instance.getValidationImage();
     if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
       validationCode = await CaptchaUtils.extractByTfLite(
@@ -86,8 +91,8 @@ class _CoursePageState extends State<CoursePage> {
       );
     }
     CourseHelper.instance.login(
-      username: username,
-      password: password,
+      username: StuHelper.instance.username,
+      password: StuHelper.instance.password,
       validationCode: validationCode,
       callback: GeneralCallback(
         onError: (GeneralResponse e) async {
@@ -109,7 +114,7 @@ class _CoursePageState extends State<CoursePage> {
 
   void _getCourse() async {
     courseData = await CourseHelper.instance.getCourseTable();
-    courseData.save('latest');
+    courseData.save(courseCacheKey);
     if (mounted) {
       setState(() {
         if (courseData != null && courseData.courseTables.timeCode != null)
