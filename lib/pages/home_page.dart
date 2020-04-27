@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:ap_common/api/github_helper.dart';
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/general_response.dart';
 import 'package:ap_common/pages/about_us_page.dart';
@@ -26,7 +27,6 @@ import 'package:package_info/package_info.dart';
 import 'package:ap_common/models/new_response.dart';
 import 'package:ap_common/models/user_info.dart';
 import 'package:ap_common/widgets/yes_no_dialog.dart';
-import 'package:ntust_ap/api/github_helper.dart';
 import 'package:ntust_ap/api/stu_helper.dart';
 import 'package:ntust_ap/config/constants.dart';
 import 'package:ntust_ap/pages/setting_page.dart';
@@ -62,7 +62,10 @@ class HomePageState extends State<HomePage> {
 
   UserInfo userInfo;
 
-  List<News> newsList = [];
+  Map<String, List<News>> newsMap;
+
+  List<News> get newsList =>
+      (newsMap == null) ? null : newsMap[AppLocalizations.locale.languageCode];
 
   bool isStudyExpanded = false;
 
@@ -268,6 +271,9 @@ class HomePageState extends State<HomePage> {
 
   _getAllNews() async {
     GitHubHelper.instance.getNews(
+      gitHubUsername: 'abc873693',
+      hashCode: 'c18531b5664e5eeb2d3dbc1ad6cb102e',
+      tag: 'ntust',
       callback: GeneralCallback(
         onError: (GeneralResponse e) {
           setState(() => state = HomeState.error);
@@ -276,14 +282,16 @@ class HomePageState extends State<HomePage> {
           setState(() => state = HomeState.error);
           ApUtils.handleDioError(context, e);
         },
-        onSuccess: (List<News> data) {
-          newsList = data;
+        onSuccess: (Map<String, List<News>> data) {
+          newsMap = data;
           setState(() {
             if (newsList == null || newsList.length == 0)
               state = HomeState.empty;
             else {
-              newsList.sort((a, b) {
-                return b.weight.compareTo(a.weight);
+              newsMap.forEach((_, data) {
+                data.sort((a, b) {
+                  return b.weight.compareTo(a.weight);
+                });
               });
               state = HomeState.finish;
             }
