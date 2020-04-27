@@ -19,12 +19,15 @@ class CoursePage extends StatefulWidget {
 }
 
 class _CoursePageState extends State<CoursePage> {
+  ApLocalizations ap;
+
   CourseData courseData;
   CourseNotifyData notifyData;
 
   CourseState _state = CourseState.loading;
 
   String customStateHint;
+  String customHint;
 
   String get courseCacheKey => '${StuHelper.instance.username}'
       '_latest'
@@ -47,9 +50,11 @@ class _CoursePageState extends State<CoursePage> {
 
   @override
   Widget build(BuildContext context) {
+    ap = ApLocalizations.of(context);
     return CourseScaffold(
       state: _state,
       customStateHint: customStateHint,
+      customHint: customHint,
       courseData: courseData,
       onRefresh: () async {
         if (CourseHelper.isLogin)
@@ -146,7 +151,10 @@ class _CoursePageState extends State<CoursePage> {
       setState(() {
         if (courseData != null && courseData.courseTables.timeCode != null)
           _state = CourseState.finish;
-        else
+        else if (courseData != null) {
+          customHint = '${ap.offlineCourse}\n${ap.courseClickHint}';
+          _state = CourseState.custom;
+        } else
           _state = CourseState.error;
       });
     }
