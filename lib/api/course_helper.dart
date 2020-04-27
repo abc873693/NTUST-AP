@@ -143,8 +143,7 @@ class CourseHelper {
       callback?.onError(generalResponse);
     } on DioError catch (e) {
       if (e.type == DioErrorType.RESPONSE && e.response.statusCode == 302) {
-        print(e.response.data);
-        print(e.response.isRedirect);
+//        debugPrint(e.response.data);
         String rawHtml = e.response.data.toString();
         if (rawHtml.contains('Error.html'))
           callback?.onError(
@@ -155,8 +154,7 @@ class CourseHelper {
           );
         else if (e.response.data.toString().contains('Object moved')) {
           isLogin = true;
-          print(callback?.onSuccess(GeneralResponse.success()).runtimeType);
-//          callback?.onSuccess(GeneralResponse.success());
+          callback?.onSuccess(GeneralResponse.success());
         } else
           callback?.onFailure(e);
       } else {
@@ -166,7 +164,7 @@ class CourseHelper {
   }
 
   Future<CourseData> getCourseTable() async {
-    print('$BASE_PATH$COURSE');
+//    debugPrint('$BASE_PATH$COURSE');
     CourseData courseData = CourseData(
       courses: [],
       courseTables: CourseTables(),
@@ -247,7 +245,7 @@ class CourseHelper {
       }
     }
     DateTime end = DateTime.now();
-    print(
+    debugPrint(
         'parse time = ${end.millisecondsSinceEpoch - start.millisecondsSinceEpoch} ms');
     return courseData;
   }
@@ -275,7 +273,7 @@ class CourseHelper {
   }
 
   Future<void> checkLogin() async {
-    print('$BASE_PATH$COURSE');
+//    debugPrint('$BASE_PATH$COURSE');
     var response = await dio.get(
       '$BASE_PATH',
       options: Options(
