@@ -59,7 +59,7 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
       child: ApTheme(
         themeMode,
         child: MaterialApp(
-//          onGenerateTitle: (context) => AppLocalizations.of(context).appName,
+          onGenerateTitle: (context) => AppLocalizations.of(context).appName,
           debugShowCheckedModeBanner: false,
           routes: <String, WidgetBuilder>{
             Navigator.defaultRouteName: (context) => HomePage(),
@@ -75,7 +75,6 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
               : [],
           localeResolutionCallback:
               (Locale locale, Iterable<Locale> supportedLocales) {
-//            print('Load ${locale.languageCode}');
             String languageCode = Preferences.getString(
               Constants.PREF_LANGUAGE_CODE,
               ApSupportLanguageConstants.SYSTEM,
@@ -83,13 +82,17 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
             if (languageCode == ApSupportLanguageConstants.SYSTEM)
               return locale;
             else
-              return Locale(languageCode);
+              return Locale(
+                languageCode,
+                languageCode == ApSupportLanguageConstants.ZH ? 'TW' : null,
+              );
           },
           localizationsDelegates: [
             const AppLocalizationsDelegate(),
             const ApLocalizationsDelegate(),
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
           ],
           supportedLocales: [
             const Locale('en', 'US'), // English

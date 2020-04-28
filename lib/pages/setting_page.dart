@@ -93,7 +93,10 @@ class SettingPageState extends State<SettingPage> {
                           locale = Localizations.localeOf(context);
                           break;
                         default:
-                          locale = Locale(code);
+                          locale = Locale(
+                            code,
+                            code == ApSupportLanguageConstants.ZH ? 'TW' : null,
+                          );
                           break;
                       }
                       CourseHelper.instance.setLanguage(code);
