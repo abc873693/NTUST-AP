@@ -93,6 +93,18 @@ class _CoursePageState extends State<CoursePage> {
 
   String validationCode = '';
 
+  Function(DioError) get dioError => (DioError e) {
+        setState(() {
+          if (courseData != null) {
+            customHint = '${ap.offlineCourse}';
+            _state = CourseState.finish;
+          } else {
+            customStateHint = ApLocalizations.dioError(context, e);
+            _state = CourseState.error;
+          }
+        });
+      };
+
   void _login() async {
     CourseHelper.instance.login(
       username: StuHelper.instance.username,
@@ -110,12 +122,7 @@ class _CoursePageState extends State<CoursePage> {
             });
           }
         },
-        onFailure: (DioError e) {
-          ApUtils.showToast(context, ApLocalizations.dioError(context, e));
-          setState(() {
-            _state = CourseState.error;
-          });
-        },
+        onFailure: dioError,
         onSuccess: (GeneralResponse data) async {
           await CourseHelper.instance.checkLogin();
           _getCourse();
@@ -125,18 +132,30 @@ class _CoursePageState extends State<CoursePage> {
   }
 
   void _getCourse() async {
-    courseData = await CourseHelper.instance.getCourseTable();
-    courseData.save(courseCacheKey);
-    if (mounted) {
-      setState(() {
-        if (courseData != null && courseData.courseTables.timeCode != null)
-          _state = CourseState.finish;
-        else if (courseData != null) {
-          customHint = '${ap.offlineCourse}\n${ap.courseClickHint}';
-          _state = CourseState.custom;
-        } else
-          _state = CourseState.error;
-      });
-    }
+    CourseHelper.instance.getCourseTable(
+      callback: GeneralCallback(
+        onSuccess: (CourseData data) {
+          if (mounted) {
+            setState(() {
+              if (data != null && data.courseTables.timeCode != null) {
+                courseData = data;
+                _state = CourseState.finish;
+                courseData.save(courseCacheKey);
+              } else if (courseData != null) {
+                customHint = '${ap.offlineCourse}';
+                _state = CourseState.custom;
+              } else
+                _state = CourseState.error;
+            });
+          }
+        },
+        onFailure: dioError,
+        onError: (GeneralResponse e) {
+          setState(() {
+            _state = CourseState.error;
+          });
+        },
+      ),
+    );
   }
 }
