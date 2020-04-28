@@ -1,7 +1,5 @@
-import 'dart:async';
 import 'dart:io';
 
-import 'package:ap_common_firbase/utils/firebase_analytics_utils.dart';
 import 'package:ap_common_firbase/utils/firebase_utils.dart';
 import 'package:ntust_ap/pages/home_page.dart';
 import 'package:ntust_ap/pages/login_page.dart';
@@ -24,8 +22,6 @@ class MyApp extends StatefulWidget {
 
 class MyAppState extends State<MyApp> with WidgetsBindingObserver {
   Brightness brightness = Brightness.light;
-  String username;
-  String password;
 
   ThemeMode themeMode = ThemeMode.system;
 

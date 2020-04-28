@@ -1,17 +1,13 @@
-import 'dart:io';
-
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/course_notify_data.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common_firbase/utils/firebase_analytics_utils.dart';
-import 'package:flutter/foundation.dart';
 import 'package:ntust_ap/api/course_helper.dart';
 import 'package:ap_common/models/course_data.dart';
 import 'package:ap_common/scaffold/course_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:ntust_ap/api/stu_helper.dart';
-import 'package:ntust_ap/utils/captcha_utils.dart';
 
 class CoursePage extends StatefulWidget {
   @override

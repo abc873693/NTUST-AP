@@ -23,7 +23,6 @@ class SettingPage extends StatefulWidget {
 class SettingPageState extends State<SettingPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
-  AppLocalizations app;
   ApLocalizations ap;
 
   bool busNotify = false;
@@ -48,7 +47,6 @@ class SettingPageState extends State<SettingPage> {
 
   @override
   Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
     ap = ApLocalizations.of(context);
     final languageTextList = [
       ApLocalizations.of(context).systemLanguage,
