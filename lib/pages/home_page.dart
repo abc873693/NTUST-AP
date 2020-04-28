@@ -365,28 +365,21 @@ class HomePageState extends State<HomePage> {
     var end = DateTime.now();
     print(
         'load preference time = ${end.millisecondsSinceEpoch - start.millisecondsSinceEpoch} ms');
-    var bodyBytes = await StuHelper.instance.getValidationImage();
-    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-      validationCode = await CaptchaUtils.extractByTfLite(
-        bodyBytes: bodyBytes,
-        type: SystemType.stu,
-      );
-    }
     StuHelper.instance.login(
       username: username,
       password: password,
       month: month,
       day: day,
       idCard: idCard,
-      validationCode: validationCode,
       callback: GeneralCallback(
         onError: (GeneralResponse e) async {
-          if (e.statusCode == 4001) {
-            _login();
-          }
+          _homeKey.currentState.showBasicHint(
+            text: ap.unknownError,
+          );
         },
         onFailure: (DioError e) {
-          ApUtils.showToast(context, ApLocalizations.dioError(context, e));
+          _homeKey.currentState
+              .showBasicHint(text: ApLocalizations.dioError(context, e));
         },
         onSuccess: (GeneralResponse data) async {
           _homeKey.currentState.showBasicHint(text: ap.loginSuccess);

@@ -5,12 +5,15 @@ import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/ap_support_language.dart';
 import 'package:ap_common/models/score_data.dart';
 import 'package:ap_common/models/user_info.dart';
+import 'package:ap_common_firbase/utils/firebase_analytics_utils.dart';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:html/parser.dart' as html;
 import 'package:cookie_jar/cookie_jar.dart';
+import 'package:ntust_ap/utils/captcha_utils.dart';
 
 class StuHelper {
   static const BASE_PATH = 'https://stuinfo8.ntust.edu.tw';
@@ -101,16 +104,26 @@ class StuHelper {
     return input[0].attributes['value'];
   }
 
-  Future<void> login({
+  Future<GeneralResponse> login({
     @required String username,
     @required String password,
     @required String month,
     @required String day,
     @required String idCard,
-    @required String validationCode,
+    String validationCode,
     GeneralCallback<GeneralResponse> callback,
   }) async {
     try {
+      var bodyBytes;
+      if (validationCode == null) {
+        bodyBytes = await StuHelper.instance.getValidationImage();
+        if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+          validationCode = await CaptchaUtils.extractByTfLite(
+            bodyBytes: bodyBytes,
+            type: SystemType.stu,
+          );
+        }
+      }
       final option = Options(
         responseType: ResponseType.plain,
         contentType: Headers.formUrlEncodedContentType,
@@ -146,6 +159,17 @@ class StuHelper {
           statusCode: 4001,
           message: 'Validate Code Error',
         );
+        if (captchaErrorCount < 10 &&
+            (!kIsWeb && (Platform.isAndroid || Platform.isIOS))) {
+          return await login(
+            username: username,
+            password: password,
+            month: month,
+            day: day,
+            idCard: idCard,
+            callback: callback,
+          );
+        }
       } else if (rawHtml.contains("密碼輸入錯誤")) {
         generalResponse = GeneralResponse(
           statusCode: 4002,
@@ -156,12 +180,14 @@ class StuHelper {
           statusCode: 4003,
           message: 'Username Error',
         );
-      } else
+      } else {
         generalResponse = GeneralResponse(
           statusCode: 4000,
           message: 'Unkown Error',
         );
+      }
       callback?.onError(generalResponse);
+      _logErrorCount();
     } on DioError catch (e) {
       if (e.type == DioErrorType.RESPONSE && e.response.statusCode == 302) {
         print(e.response.data);
@@ -180,13 +206,30 @@ class StuHelper {
           this.birthMonth = month;
           this.birthDay = day;
           this.idCardLast = idCard;
-          callback?.onSuccess(GeneralResponse.success());
+          _logErrorCount();
+          return callback != null
+              ? callback?.onSuccess(GeneralResponse.success())
+              : GeneralResponse.success();
         } else
           callback?.onFailure(e);
       } else {
         callback?.onFailure(e);
       }
+      _logErrorCount();
+    } on Exception catch (e) {
+      callback?.onError(GeneralResponse.unknownError());
+      _logErrorCount()();
+      throw e;
     }
+    return null;
+  }
+
+  _logErrorCount() async {
+    FirebaseAnalyticsUtils.instance.logCaptchaErrorEvent(
+      'stu',
+      captchaErrorCount,
+    );
+    captchaErrorCount = 0;
   }
 
   Future<void> checkLogin() async {
@@ -211,6 +254,20 @@ class StuHelper {
         ),
       );
       final document = html.parse(response.data);
+      if (document.outerHtml.contains('逾時') ||
+          document.outerHtml.contains('Time out')) {
+        var loginResponse = await login(
+          username: StuHelper.instance.username,
+          password: StuHelper.instance.password,
+          month: birthMonth,
+          day: birthDay,
+          idCard: idCardLast,
+        );
+        if (loginResponse == null)
+          callback.onError(GeneralResponse.unknownError());
+        else
+          return getUserInfo(callback: callback);
+      }
       final tBody = document.getElementsByTagName('tbody');
       debugPrint('tbody len = ${tBody.length}');
       if (tBody.length > 0) {
@@ -242,7 +299,22 @@ class StuHelper {
           responseType: ResponseType.plain,
         ),
       );
+//      debugPrint(response.data);
       final document = html.parse(response.data);
+      if (document.outerHtml.contains('逾時') ||
+          document.outerHtml.contains('Time out')) {
+        var loginResponse = await login(
+          username: StuHelper.instance.username,
+          password: StuHelper.instance.password,
+          month: birthMonth,
+          day: birthDay,
+          idCard: idCardLast,
+        );
+        if (loginResponse == null)
+          callback.onError(GeneralResponse.unknownError());
+        else
+          return getScore(callback: callback);
+      }
       Map<String, ScoreData> scoreDataMap = Map();
       final currentScore = document.getElementById('Datagrid4');
       var currentScores = List<Score>();
@@ -330,7 +402,7 @@ class StuHelper {
           : callback?.onSuccess(scoreDataMap);
     } on DioError catch (e) {
       callback?.onFailure(e);
-    } on Exception catch (e) {
+    } catch (e) {
       callback?.onError(GeneralResponse.unknownError());
       throw e;
     }

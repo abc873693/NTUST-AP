@@ -1,3 +1,4 @@
+import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/score_data.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
@@ -111,19 +112,38 @@ class _ScorePageState extends State<ScorePage>
   }
 
   void _getScore() async {
-    scoreDataMap = await StuHelper.instance.getScore();
-    if (mounted) {
-      setState(() {
-        if (scoreDataMap != null) {
-          _tabController = TabController(
-            vsync: this,
-            length: scoreDataMap.length,
-          );
-          titles = scoreDataMap.keys.toList();
-          _state = ScoreState.finish;
-        } else
-          _state = ScoreState.error;
-      });
-    }
+    StuHelper.instance.getScore(
+      callback: GeneralCallback(
+        onFailure: (DioError e) {
+          setState(() {
+            _state = ScoreState.error;
+          });
+        },
+        onSuccess: (Map<String, ScoreData> data) {
+          scoreDataMap = data;
+          if (mounted) {
+            setState(() {
+              if (scoreDataMap != null) {
+                if (scoreDataMap.length == 0)
+                  _state = ScoreState.empty;
+                else
+                  _state = ScoreState.finish;
+                _tabController = TabController(
+                  vsync: this,
+                  length: scoreDataMap.length,
+                );
+                titles = scoreDataMap.keys.toList();
+              } else
+                _state = ScoreState.error;
+            });
+          }
+        },
+        onError: (GeneralResponse e) {
+          setState(() {
+            _state = ScoreState.error;
+          });
+        },
+      ),
+    );
   }
 }

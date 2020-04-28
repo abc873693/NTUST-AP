@@ -271,46 +271,23 @@ class LoginPageState extends State<LoginPage> {
         callback: GeneralCallback<GeneralResponse>(
           onError: (GeneralResponse e) async {
             Navigator.pop(context);
-            if (e.statusCode == 4001) {
-              print('4001');
-              bodyBytes = await StuHelper.instance.getValidationImage();
-              if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-                _validationCode.text = await CaptchaUtils.extractByTfLite(
-                  bodyBytes: bodyBytes,
-                  type: SystemType.stu,
-                );
-                if (StuHelper.instance.captchaErrorCount < 10)
-                  _login();
-                else {
-                  ApUtils.showToast(context, app.captchaError);
-                  FirebaseAnalyticsUtils.instance.logCaptchaErrorEvent(
-                    'stu',
-                    StuHelper.instance.captchaErrorCount,
-                  );
-                  StuHelper.instance.captchaErrorCount = 0;
-                }
-              } else
-                ApUtils.showToast(context, app.captchaError);
-            } else {
-              var message = "";
-              switch (e.statusCode) {
-                case 4001:
-                  message = app.captchaError;
-                  break;
-                case 4002:
-                  message = app.passwordError;
-                  break;
-                case 4003:
-                  message = app.usernameError;
-                  break;
-                case 4000:
-                default:
-                  message = app.unknown;
-                  break;
-              }
-              ApUtils.showToast(context, message);
-//              StuHelper.instance.checkLogin();
+            var message = "";
+            switch (e.statusCode) {
+              case 4001:
+                message = app.captchaError;
+                break;
+              case 4002:
+                message = app.passwordError;
+                break;
+              case 4003:
+                message = app.usernameError;
+                break;
+              case 4000:
+              default:
+                message = app.unknownError;
+                break;
             }
+            ApUtils.showToast(context, message);
           },
           onFailure: (DioError e) {
             Navigator.pop(context);
@@ -332,11 +309,6 @@ class LoginPageState extends State<LoginPage> {
             }
             Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
             ApUtils.showToast(context, app.loginSuccess);
-            FirebaseAnalyticsUtils.instance.logCaptchaErrorEvent(
-              'stu',
-              StuHelper.instance.captchaErrorCount,
-            );
-            StuHelper.instance.captchaErrorCount = 0;
             Navigator.of(context).pop(true);
           },
         ),
