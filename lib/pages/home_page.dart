@@ -34,8 +34,6 @@ import 'package:ntust_ap/pages/study/score_page.dart';
 import 'package:ntust_ap/pages/user_info_page.dart';
 import 'package:ntust_ap/resourses/ap_assets.dart';
 import 'package:ntust_ap/utils/app_localizations.dart';
-import 'package:ntust_ap/utils/captcha_utils.dart';
-import 'package:ntust_ap/widgets/share_data_widget.dart';
 
 import 'study/course_page.dart';
 import 'login_page.dart';
@@ -87,6 +85,10 @@ class HomePageState extends State<HomePage> {
     if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
       _checkUpdate();
     }
+    FirebaseAnalyticsUtils.instance.setUserProperty(
+      FirebaseConstants.LANGUAGE,
+      AppLocalizations.locale.languageCode,
+    );
   }
 
   @override

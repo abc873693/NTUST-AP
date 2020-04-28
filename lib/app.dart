@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:ap_common_firbase/constants/fiirebase_constants.dart';
+import 'package:ap_common_firbase/utils/firebase_analytics_utils.dart';
 import 'package:ap_common_firbase/utils/firebase_utils.dart';
 import 'package:ntust_ap/pages/home_page.dart';
 import 'package:ntust_ap/pages/login_page.dart';
@@ -32,6 +34,7 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
     _analytics = FirebaseUtils.init();
     themeMode = ThemeMode
         .values[Preferences.getInt(Constants.PREF_THEME_MODE_INDEX, 0)];
+    logThemeEvent();
     WidgetsBinding.instance.addObserver(this);
     super.initState();
   }
@@ -45,6 +48,7 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void didChangePlatformBrightness() {
     setState(() {});
+    logThemeEvent();
     super.didChangePlatformBrightness();
   }
 
@@ -103,5 +107,26 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
     setState(() {
       themeMode = mode;
     });
+    logThemeEvent();
+  }
+
+  void logThemeEvent() async {
+    Brightness brightness;
+    switch (themeMode) {
+      case ThemeMode.system:
+        brightness = WidgetsBinding.instance.window.platformBrightness;
+        break;
+      case ThemeMode.light:
+        brightness = Brightness.light;
+        break;
+      case ThemeMode.dark:
+      default:
+        brightness = Brightness.dark;
+        break;
+    }
+    FirebaseAnalyticsUtils.instance.setUserProperty(
+      FirebaseConstants.THEME,
+      brightness == Brightness.light ? ApTheme.LIGHT : ApTheme.DARK,
+    );
   }
 }
