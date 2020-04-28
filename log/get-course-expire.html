@@ -1,0 +1,100 @@
+ <!DOCTYPE html>
+ <html>
+ <head>
+         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+         <meta charset="utf-8" />
+         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+         <title>登入 - 國立臺灣科技大學選課系統</title>
+    
+         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+    
+         <!-- Material Design fonts -->
+         <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700">
+         <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/icon?family=Material+Icons">
+         <!--     Fonts and icons     -->
+         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" />
+    
+         <link href="/Content/css?v=ZIT4Az9ybwMvNyRyLlZXfzq5LlyzjGcWYKo3y-w81so1" rel="stylesheet"/>
+    
+         <link href="/Assets/css/material-kit.css" rel="stylesheet" />
+         <link id="linkRoot" href="/" rel="stylesheet">
+    
+     </head>
+ <body class="signup-page">
+     <div class="wrapper">
+             <div class="header" style="background-image: url('/Assets/image/backgroud.jpg'); background-size: cover; background-position: top center;">
+                 <div class="container">
+                     <div class="row">
+                         <div class="col-md-6 col-md-offset-3">
+                             <div class="card card-signup">
+     <form action="/Account/Login?ReturnUrl=%2FChooseList%2FD01%2FD01" class="form-horizontal" method="post" role="form"><input name="__RequestVerificationToken" type="hidden" value="mxCvb0R-H4to_8-KPQ92XUwqLAlFojSDH0XQIOcYQ0YCw77GW2oDj0M-8qtXWBMojG43FCmAuYKZwCJWp_nhUzKnXMil8ivkzaYF6CQY3Q81" />                                <div class="header header-warning text-center">
+                                         <img src="/Assets/image/logo.png" style="width:65%;height:65%;" />
+                                     </div>
+                                     <p class="text-divider"></p>
+                                     <div class="content">
+                                             <div class="input-group">
+                                                 <span class="input-group-addon">
+                                             <i class="glyphicon glyphicon-user">&nbsp;</i>
+                                         </span>
+                                                 <input class="form-control" data-val="true" data-val-required="學號 欄位是必要項。" id="UserName" name="UserName" placeholder="學號" type="text" value="" />
+                                                 <span class="field-validation-valid text-danger" data-valmsg-for="UserName" data-valmsg-replace="true"></span>
+                                             </div>
+                                             <div class="input-group">
+                                                 <span class="input-group-addon">
+                                             <i class="glyphicon glyphicon-pencil">&nbsp;</i>
+                                         </span>
+                                                 <input class="form-control" data-val="true" data-val-required="密碼 欄位是必要項。" id="Password" name="Password" placeholder="密碼" type="password" />
+                                                 <span class="field-validation-valid text-danger" data-valmsg-for="Password" data-valmsg-replace="true"></span>
+                                             </div>
+                                             <div class="input-group">
+                                                 <span class="input-group-addon">
+                                             <i class="glyphicon glyphicon-picture">&nbsp;</i>
+                                         </span>
+                                                 <input class="form-control" data-val="true" data-val-required="圖形驗證碼 欄位是必要項。" id="VerifyCode" name="VerifyCode" placeholder="圖形驗證碼" type="text" value="" />
+                                                 <span class="field-validation-valid text-danger" data-valmsg-for="VerifyCode" data-valmsg-replace="true"></span>
+                                                 <img id="valiCode" class="validcode" src="/Account/GetValidateCode" alt="驗證碼" style="width: 128px; height: 40px" />
+                                             </div>
+                                             <div class="input-group">
+                                                 <span class="input-group-addon">
+                                             <i class="glyphicon">&nbsp;</i>
+                                         </span>
+                                                     <span class="text-danger"></span>                                    </div>
+        
+                                         </div>
+                                     <br />
+                                     <div class="footer text-center">
+                                             <input type="submit" value=登入 class="btn btn-raised btn-warning" />
+                                             <a class="btn btn-raised" href="/">回首頁</a>
+                                         </div>
+     </form>                        </div>
+                         </div>
+                     </div>
+                 </div>
+             </div>
+         </div>
+
+     <script src="/bundles/jquery?v=MZVaRGaAZivrCwFv-Q1F6rMPhQfwlY1fMhfjS2YKdJI1"></script>
+
+     <script src="/bundles/bootstrap?v=MNpS5O51wHRNa-mwZiLo2ANrfm54KakDrpnTApBnVqM1"></script>
+
+     <script src="/assets/js/material.min.js"></script>
+     <script src="/bundles/jqueryval?v=68gUS0MFyH2UgTDYZ8fLvAZ7XhWlGPV6cfRQ-zA1ecI1"></script>
+
+     <!-- Plugin for the Sliders, full documentation here: http://refreshless.com/nouislider/ -->
+     <script src="/assets/js/nouislider.min.js"></script>
+     <!-- Plugin for the Datepicker, full documentation here: http://www.eyecon.ro/bootstrap-datepicker/ -->
+     <script src="/assets/js/bootstrap-datepicker.js"></script>
+
+     <!-- Control Center for Material Kit: activating the ripples, parallax effects, scripts from the example pages etc -->
+     <script src="/assets/js/material-kit.js"></script>
+
+     <!--2016.8.13 Simpson Add, For Mobile time out-->
+     <script src="/Scripts/mobileIndex.js"></script>
+     <script type="text/javascript">
+         $(document).ready(function (e) {
+             ExitAppSystem();
+         });
+     </script>
+
+ </body>
+ </html>

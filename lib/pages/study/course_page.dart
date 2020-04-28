@@ -94,30 +94,15 @@ class _CoursePageState extends State<CoursePage> {
   String validationCode = '';
 
   void _login() async {
-    var bodyBytes = await CourseHelper.instance.getValidationImage();
-    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-      validationCode = await CaptchaUtils.extractByTfLite(
-        bodyBytes: bodyBytes,
-        type: SystemType.course,
-      );
-    }
     CourseHelper.instance.login(
       username: StuHelper.instance.username,
       password: StuHelper.instance.password,
-      validationCode: validationCode,
       callback: GeneralCallback(
         onError: (GeneralResponse e) async {
           if (e.statusCode == 4001) {
-            print('4001');
-            if (CourseHelper.instance.captchaErrorCount < 10)
-              _login();
-            else {
-              FirebaseAnalyticsUtils.instance.logCaptchaErrorEvent(
-                'course',
-                CourseHelper.instance.captchaErrorCount,
-              );
-              CourseHelper.instance.captchaErrorCount = 0;
-            }
+            setState(() {
+              _state = CourseState.error;
+            });
           } else {
             setState(() {
               _state = CourseState.custom;
@@ -134,11 +119,6 @@ class _CoursePageState extends State<CoursePage> {
         onSuccess: (GeneralResponse data) async {
           await CourseHelper.instance.checkLogin();
           _getCourse();
-          FirebaseAnalyticsUtils.instance.logCaptchaErrorEvent(
-            'course',
-            CourseHelper.instance.captchaErrorCount,
-          );
-          CourseHelper.instance.captchaErrorCount = 0;
         },
       ),
     );
