@@ -367,12 +367,9 @@ class HomePageState extends State<HomePage> {
     var end = DateTime.now();
     print(
         'load preference time = ${end.millisecondsSinceEpoch - start.millisecondsSinceEpoch} ms');
-    StuHelper.instance.login(
+    CourseHelper.instance.login(
       username: username,
       password: password,
-      month: month,
-      day: day,
-      idCard: idCard,
       callback: GeneralCallback(
         onError: (GeneralResponse e) async {
           _homeKey.currentState.showBasicHint(
