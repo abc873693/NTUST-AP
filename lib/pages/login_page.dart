@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:ap_common/scaffold/login_scaffold.dart';
 import 'package:ap_common_firbase/utils/firebase_analytics_utils.dart';
+import 'package:ntust_ap/api/course_helper.dart';
 import 'package:ntust_ap/api/stu_helper.dart';
 import 'package:ntust_ap/config/constants.dart';
 import 'package:ntust_ap/utils/captcha_utils.dart';
@@ -29,9 +30,6 @@ class LoginPageState extends State<LoginPage> {
   final TextEditingController _username = TextEditingController();
   final TextEditingController _password = TextEditingController();
   final TextEditingController _validationCode = TextEditingController();
-  final TextEditingController _month = TextEditingController();
-  final TextEditingController _day = TextEditingController();
-  final TextEditingController _idCard = TextEditingController();
 
   var isRememberPassword = true;
   var isAutoLogin = false;
@@ -39,9 +37,6 @@ class LoginPageState extends State<LoginPage> {
   final _usernameFocusNode = FocusNode();
   final _passwordFocusNode = FocusNode();
   final _validationCodeFocusNode = FocusNode();
-  final _monthFocusNode = FocusNode();
-  final _dayFocusNode = FocusNode();
-  final _idCardFocusNode = FocusNode();
 
   Uint8List bodyBytes;
 
@@ -73,68 +68,13 @@ class LoginPageState extends State<LoginPage> {
         ),
         ApTextField(
           obscureText: true,
-          textInputAction: TextInputAction.next,
+          textInputAction: TextInputAction.send,
           controller: _password,
           focusNode: _passwordFocusNode,
-          nextFocusNode: _monthFocusNode,
           labelText: app.password,
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Expanded(
-              child: ApTextField(
-                controller: _month,
-                focusNode: _monthFocusNode,
-                nextFocusNode: _dayFocusNode,
-                keyboardType: TextInputType.number,
-                labelText: app.birthMonth,
-                maxLength: 2,
-                onChanged: (text) {
-                  if (text.length == 2) {
-                    _monthFocusNode.unfocus();
-                    FocusScope.of(context).requestFocus(_dayFocusNode);
-                  }
-                },
-              ),
-            ),
-            SizedBox(width: 8.0),
-            Expanded(
-              child: ApTextField(
-                keyboardType: TextInputType.number,
-                controller: _day,
-                focusNode: _dayFocusNode,
-                nextFocusNode: _idCardFocusNode,
-                labelText: app.birthDay,
-                maxLength: 2,
-                onChanged: (text) {
-                  if (text.length == 2) {
-                    _dayFocusNode.unfocus();
-                    FocusScope.of(context).requestFocus(_idCardFocusNode);
-                  }
-                },
-              ),
-            ),
-            SizedBox(width: 8.0),
-            Expanded(
-              flex: 2,
-              child: ApTextField(
-                controller: _idCard,
-                focusNode: _idCardFocusNode,
-                nextFocusNode: _validationCodeFocusNode,
-                keyboardType: TextInputType.number,
-                labelText: app.idCardLastCode,
-                onChanged: (text) {
-                  if (text.length == 4) {
-                    _idCardFocusNode.unfocus();
-                    FocusScope.of(context)
-                        .requestFocus(_validationCodeFocusNode);
-                  }
-                },
-              ),
-            ),
-          ],
+          onSubmitted: (_) {
+            _login();
+          },
         ),
         if (kIsWeb || !(Platform.isAndroid || Platform.isIOS))
           Row(
@@ -214,19 +154,13 @@ class LoginPageState extends State<LoginPage> {
     isRememberPassword =
         Preferences.getBool(Constants.PREF_REMEMBER_PASSWORD, true);
     var username = Preferences.getString(Constants.PREF_USERNAME, '');
-    var password = '', month = '', day = '', idCard = '';
+    var password = '';
     if (isRememberPassword) {
       password = Preferences.getStringSecurity(Constants.PREF_PASSWORD, '');
-      month = Preferences.getString(Constants.PREF_BIRTH_MONTH, '');
-      day = Preferences.getString(Constants.PREF_BIRTH_DAY, '');
-      idCard = Preferences.getStringSecurity(Constants.PREF_ID_CARD, '');
     }
     setState(() {
       _username.text = username;
       _password.text = password;
-      _month.text = month;
-      _day.text = day;
-      _idCard.text = idCard;
     });
   }
 
@@ -243,11 +177,7 @@ class LoginPageState extends State<LoginPage> {
   }
 
   _login() async {
-    if (_username.text.isEmpty ||
-        _password.text.isEmpty ||
-        _month.text.isEmpty ||
-        _day.text.isEmpty ||
-        _idCard.text.isEmpty) {
+    if (_username.text.isEmpty || _password.text.isEmpty) {
       ApUtils.showToast(context, app.doNotEmpty);
     } else {
       showDialog(
@@ -261,12 +191,9 @@ class LoginPageState extends State<LoginPage> {
         barrierDismissible: false,
       );
       Preferences.setString(Constants.PREF_USERNAME, _username.text);
-      StuHelper.instance.login(
+      CourseHelper.instance.login(
         username: _username.text,
         password: _password.text,
-        month: _month.text.length == 2 ? _month.text : '0${_month.text}',
-        day: _day.text.length == 2 ? _day.text : '0${_day.text}',
-        idCard: _idCard.text,
         validationCode: _validationCode.text,
         callback: GeneralCallback<GeneralResponse>(
           onError: (GeneralResponse e) async {
@@ -301,11 +228,6 @@ class LoginPageState extends State<LoginPage> {
                 Constants.PREF_PASSWORD,
                 _password.text,
               );
-              await Preferences.setString(
-                  Constants.PREF_BIRTH_MONTH, _month.text);
-              await Preferences.setString(Constants.PREF_BIRTH_DAY, _day.text);
-              await Preferences.setStringSecurity(
-                  Constants.PREF_ID_CARD, _idCard.text);
             }
             Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
             ApUtils.showToast(context, app.loginSuccess);
