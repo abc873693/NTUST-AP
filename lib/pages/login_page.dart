@@ -58,7 +58,8 @@ class LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     app = ApLocalizations.of(context);
     return LoginScaffold(
-      logoText: "T",
+      logoSource: "T",
+      logoMode: LogoMode.text,
       forms: <Widget>[
         ApTextField(
           controller: _username,
