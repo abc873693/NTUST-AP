@@ -110,6 +110,13 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
     logThemeEvent();
   }
 
+  void loadLocale(Locale locale) {
+    setState(() {
+      AppLocalizationsDelegate().load(locale);
+      ApLocalizationsDelegate().load(locale);
+    });
+  }
+
   void logThemeEvent() async {
     Brightness brightness;
     switch (themeMode) {
