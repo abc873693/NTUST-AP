@@ -6,7 +6,7 @@ import 'package:ap_common/models/ap_support_language.dart';
 import 'package:ap_common/models/course_data.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/preferences.dart';
-import 'package:ap_common_firbase/utils/firebase_analytics_utils.dart';
+import 'package:ap_common_firebase/utils/firebase_analytics_utils.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/foundation.dart';

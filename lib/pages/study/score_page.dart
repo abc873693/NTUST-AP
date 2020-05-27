@@ -5,7 +5,7 @@ import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/scaffold/score_scaffold.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/widgets/hint_content.dart';
-import 'package:ap_common_firbase/utils/firebase_analytics_utils.dart';
+import 'package:ap_common_firebase/utils/firebase_analytics_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:ntust_ap/api/stu_helper.dart';
 

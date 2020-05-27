@@ -1,6 +1,6 @@
 import 'package:ap_common/models/user_info.dart';
 import 'package:ap_common/scaffold/user_info_scaffold.dart';
-import 'package:ap_common_firbase/utils/firebase_analytics_utils.dart';
+import 'package:ap_common_firebase/utils/firebase_analytics_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:ntust_ap/api/stu_helper.dart';
 
