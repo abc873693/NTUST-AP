@@ -11,6 +11,7 @@ import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/scaffold/home_page_scaffold.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/ap_utils.dart';
+import 'package:ap_common/utils/dialog_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/ap_drawer.dart';
 import 'package:ap_common/widgets/default_dialog.dart';
@@ -417,7 +418,7 @@ class HomePageState extends State<HomePage> {
     var currentVersion =
         Preferences.getString(Constants.PREF_CURRENT_VERSION, '');
     if (currentVersion != packageInfo.buildNumber) {
-      DefaultDialog.showUpdateContent(
+      DialogUtils.showUpdateContent(
         context,
         "v${packageInfo.version}\n"
         "${app.updateNoteContent}",
@@ -431,12 +432,11 @@ class HomePageState extends State<HomePage> {
       VersionInfo versionInfo =
           await FirebaseRemoteConfigUtils.getVersionInfo();
       if (versionInfo != null)
-        ApUtils.showNewVersionDialog(
+        DialogUtils.showNewVersionContent(
           context: context,
-          newVersionCode: versionInfo.code,
           iOSAppId: '1508879766',
           defaultUrl: 'https://www.facebook.com/NKUST.ITC/',
-          newVersionContent: versionInfo.content,
+          versionInfo: versionInfo,
           appName: AppLocalizations.of(context).appName,
         );
     }
