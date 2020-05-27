@@ -4,7 +4,7 @@ import 'package:ap_common/api/github_helper.dart';
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/general_response.dart';
 import 'package:ap_common/pages/about_us_page.dart';
-import 'package:ap_common/pages/news/news_content_page.dart';
+import 'package:ap_common/pages/announcement_content_page.dart';
 import 'package:ap_common/pages/open_source_page.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
@@ -24,7 +24,6 @@ import 'package:flutter/material.dart';
 import 'package:ntust_ap/api/course_helper.dart';
 import 'package:ntust_ap/pages/school_map_page.dart';
 import 'package:package_info/package_info.dart';
-import 'package:ap_common/models/new_response.dart';
 import 'package:ap_common/models/user_info.dart';
 import 'package:ap_common/widgets/yes_no_dialog.dart';
 import 'package:ntust_ap/api/stu_helper.dart';
@@ -60,9 +59,9 @@ class HomePageState extends State<HomePage> {
 
   UserInfo userInfo;
 
-  Map<String, List<News>> newsMap;
+  Map<String, List<Announcement>> newsMap;
 
-  List<News> get newsList =>
+  List<Announcement> get newsList =>
       (newsMap == null) ? null : newsMap[AppLocalizations.locale.languageCode];
 
   bool isStudyExpanded = false;
@@ -77,7 +76,7 @@ class HomePageState extends State<HomePage> {
     super.initState();
     FirebaseAnalyticsUtils.instance
         .setCurrentScreen("HomePage", "home_page.dart");
-    _getAllNews();
+    _getAllAnnouncement();
     if (Preferences.getBool(Constants.PREF_AUTO_LOGIN, false))
       _login();
     else
@@ -111,10 +110,10 @@ class HomePageState extends State<HomePage> {
           onPressed: _showInformationDialog,
         ),
       ],
-      onImageTapped: (News news) {
+      onImageTapped: (Announcement news) {
         ApUtils.pushCupertinoStyle(
           context,
-          NewsContentPage(news: news),
+          AnnouncementContentPage(announcement: news),
         );
         String message = news.description.length > 12
             ? news.description
@@ -237,7 +236,7 @@ class HomePageState extends State<HomePage> {
           }
         },
       ),
-      newsList: newsList,
+      announcements: newsList,
       onTabTapped: onTabTapped,
       bottomNavigationBarItems: [
         BottomNavigationBarItem(
@@ -271,8 +270,8 @@ class HomePageState extends State<HomePage> {
     });
   }
 
-  _getAllNews() async {
-    GitHubHelper.instance.getNews(
+  _getAllAnnouncement() async {
+    GitHubHelper.instance.getAnnouncement(
       gitHubUsername: 'abc873693',
       hashCode: 'c18531b5664e5eeb2d3dbc1ad6cb102e',
       tag: 'ntust',
@@ -284,7 +283,7 @@ class HomePageState extends State<HomePage> {
           setState(() => state = HomeState.error);
           ApUtils.handleDioError(context, e);
         },
-        onSuccess: (Map<String, List<News>> data) {
+        onSuccess: (Map<String, List<Announcement>> data) {
           newsMap = data;
           setState(() {
             if (newsList == null || newsList.length == 0)
@@ -451,7 +450,7 @@ class HomePageState extends State<HomePage> {
     );
     if (result ?? false) {
       if (state != HomeState.finish) {
-        _getAllNews();
+        _getAllAnnouncement();
       }
       _getUserInfo();
       isLogin = true;
