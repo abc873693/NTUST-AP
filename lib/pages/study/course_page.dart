@@ -7,6 +7,7 @@ import 'package:ntust_ap/api/course_helper.dart';
 import 'package:ap_common/models/course_data.dart';
 import 'package:ap_common/scaffold/course_scaffold.dart';
 import 'package:flutter/material.dart';
+import 'package:ntust_ap/api/sso_helper.dart';
 import 'package:ntust_ap/api/stu_helper.dart';
 
 class CoursePage extends StatefulWidget {
@@ -34,11 +35,8 @@ class _CoursePageState extends State<CoursePage> {
 
   @override
   void initState() {
-    _loadCache();
-    if (CourseHelper.isLogin)
-      _getCourse();
-    else
-      _login();
+    // _loadCache();
+    _getCourse();
     FirebaseAnalyticsUtils.instance
         .setCurrentScreen("CoursePage", "course_page.dart");
     super.initState();
@@ -53,10 +51,7 @@ class _CoursePageState extends State<CoursePage> {
       customHint: customHint,
       courseData: courseData,
       onRefresh: () async {
-        if (CourseHelper.isLogin)
-          _getCourse();
-        else
-          _login();
+        _getCourse();
       },
       isShowSearchButton: false,
       notifyData: notifyData,
@@ -128,7 +123,7 @@ class _CoursePageState extends State<CoursePage> {
   }
 
   void _getCourse() async {
-    CourseHelper.instance.getCourseTable(
+    SsoHelper.instance.getCourseTable(
       callback: GeneralCallback(
         onSuccess: (CourseData data) {
           if (mounted) {

@@ -3,7 +3,7 @@ import 'dart:typed_data';
 
 import 'package:ap_common/scaffold/login_scaffold.dart';
 import 'package:ap_common_firebase/utils/firebase_analytics_utils.dart';
-import 'package:ntust_ap/api/course_helper.dart';
+import 'package:ntust_ap/api/sso_helper.dart';
 import 'package:ntust_ap/api/stu_helper.dart';
 import 'package:ntust_ap/config/constants.dart';
 import 'package:ap_common/callback/general_callback.dart';
@@ -45,7 +45,6 @@ class LoginPageState extends State<LoginPage> {
         .setCurrentScreen("LoginPage", "login_page.dart");
     super.initState();
     _getPreference();
-    _getValidationCode();
   }
 
   @override
@@ -183,30 +182,14 @@ class LoginPageState extends State<LoginPage> {
         barrierDismissible: false,
       );
       Preferences.setString(Constants.PREF_USERNAME, _username.text);
-      CourseHelper.instance.login(
+      SsoHelper.instance.login(
         username: _username.text,
         password: _password.text,
         validationCode: _validationCode.text,
         callback: GeneralCallback<GeneralResponse>(
           onError: (GeneralResponse e) async {
             Navigator.pop(context);
-            var message = "";
-            switch (e.statusCode) {
-              case 4001:
-                message = app.captchaError;
-                break;
-              case 4002:
-                message = app.passwordError;
-                break;
-              case 4003:
-                message = app.usernameError;
-                break;
-              case 4000:
-              default:
-                message = app.unknownError;
-                break;
-            }
-            ApUtils.showToast(context, message);
+            Navigator.pop(context, false);
           },
           onFailure: (DioError e) {
             Navigator.pop(context);
@@ -222,7 +205,6 @@ class LoginPageState extends State<LoginPage> {
               );
             }
             Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
-            ApUtils.showToast(context, app.loginSuccess);
             Navigator.of(context).pop(true);
           },
         ),

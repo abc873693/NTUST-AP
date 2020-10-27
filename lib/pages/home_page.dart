@@ -14,7 +14,6 @@ import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/utils/dialog_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/ap_drawer.dart';
-import 'package:ap_common/widgets/default_dialog.dart';
 import 'package:ap_common_firebase/constants/fiirebase_constants.dart';
 import 'package:ap_common_firebase/utils/firebase_analytics_utils.dart';
 import 'package:ap_common_firebase/utils/firebase_remote_config_utils.dart';
@@ -22,7 +21,9 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:ntust_ap/api/course_helper.dart';
+import 'package:ntust_ap/api/sso_helper.dart';
 import 'package:ntust_ap/pages/school_map_page.dart';
 import 'package:package_info/package_info.dart';
 import 'package:ap_common/models/user_info.dart';
@@ -48,6 +49,8 @@ class HomePage extends StatefulWidget {
 class HomePageState extends State<HomePage> {
   final GlobalKey<HomePageScaffoldState> _homeKey =
       GlobalKey<HomePageScaffoldState>();
+
+  InAppWebViewController webViewController;
 
   AppLocalizations app;
   ApLocalizations ap;
@@ -78,9 +81,7 @@ class HomePageState extends State<HomePage> {
     FirebaseAnalyticsUtils.instance
         .setCurrentScreen("HomePage", "home_page.dart");
     _getAllAnnouncement();
-    if (Preferences.getBool(Constants.PREF_AUTO_LOGIN, false))
-      _login();
-    else
+    if (!Preferences.getBool(Constants.PREF_AUTO_LOGIN, false))
       _checkLoginState();
     if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
       _checkUpdate();
@@ -100,155 +101,195 @@ class HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
     ap = ApLocalizations.of(context);
-    return HomePageScaffold(
-      key: _homeKey,
-      isLogin: isLogin,
-      state: state,
-      title: app.appName,
-      actions: <Widget>[
-        IconButton(
-          icon: Icon(ApIcon.info),
-          onPressed: _showInformationDialog,
-        ),
-      ],
-      onImageTapped: (Announcement news) {
-        ApUtils.pushCupertinoStyle(
-          context,
-          AnnouncementContentPage(announcement: news),
-        );
-        String message = news.description.length > 12
-            ? news.description
-            : news.description.substring(0, 12);
-        FirebaseAnalyticsUtils.instance.logAction(
-          'news_image',
-          'click',
-          message: message,
-        );
-      },
-      drawer: ApDrawer(
-        userInfo: userInfo,
-        widgets: <Widget>[
-          ExpansionTile(
-            initiallyExpanded: isStudyExpanded,
-            onExpansionChanged: (bool) {
-              setState(() => isStudyExpanded = bool);
+    return Scaffold(
+      body: Stack(
+        children: <Widget>[
+          InAppWebView(
+            initialUrl: SsoHelper.LOGIN,
+            onWebViewCreated: (InAppWebViewController webViewController) {
+              SsoHelper.webViewController = webViewController;
+              SsoHelper.state = SsoHelperState.done;
             },
-            leading: Icon(
-              ApIcon.collectionsBookmark,
-              color: isStudyExpanded
-                  ? ApTheme.of(context).blueAccent
-                  : ApTheme.of(context).grey,
-            ),
-            title: Text(ap.courseInfo, style: _defaultStyle),
-            children: <Widget>[
-              DrawerSubItem(
-                icon: ApIcon.classIcon,
-                title: ap.course,
-                page: CoursePage(),
-                needLogin: !isLogin,
-              ),
-              DrawerSubItem(
-                icon: ApIcon.assignment,
-                title: ap.score,
-                page: ScorePage(),
-                needLogin: !isLogin,
-              ),
-            ],
+            onJsPrompt: (controller, JsPromptRequest jsPromptRequest) {
+              print(jsPromptRequest.defaultValue);
+              return;
+            },
+            onTitleChanged: (controller, text) async {
+              final path = await controller.getUrl();
+              if (path == SsoHelper.LOGIN) {
+                if (Preferences.getBool(Constants.PREF_AUTO_LOGIN, false))
+                  _login();
+              } else
+                setState(() {
+                  if (path == SsoHelper.COURSE_HOME) {
+                    if (Preferences.getBool(Constants.PREF_AUTO_LOGIN, false))
+                      _homeKey.currentState
+                          .showBasicHint(text: ap.loginSuccess);
+                    else
+                      ApUtils.showToast(context, ap.loginSuccess);
+                    SsoHelper.state = SsoHelperState.login;
+                    isLogin = true;
+                    _checkLoginState();
+                  }
+                });
+              print('$text $path');
+            },
           ),
-          DrawerItem(
-            icon: ApIcon.map,
-            title: ap.schoolMap,
-            page: SchoolMapPage(),
-          ),
-          DrawerItem(
-            icon: ApIcon.face,
-            title: ap.about,
-            page: AboutUsPage(
-              assetImage: ImageAssets.ntust,
-              githubName: 'NKUST-ITC',
-              email: 'abc873693@gmail.com',
-              appLicense: app.aboutOpenSourceContent,
-              fbFanPageId: '735951703168873',
-              fbFanPageUrl: 'https://www.facebook.com/NKUST.ITC/',
-              githubUrl: 'https://github.com/NKUST-ITC',
-              logEvent: (name, value) =>
-                  FirebaseAnalyticsUtils.instance.logAction(name, value),
-              setCurrentScreen: () => FirebaseAnalyticsUtils.instance
-                  .setCurrentScreen("AboutUsPage", "about_us_page.dart"),
+          if (SsoHelper.state != SsoHelperState.needValidateCaptcha)
+            HomePageScaffold(
+              key: _homeKey,
+              isLogin: isLogin,
+              state: state,
+              title: app.appName,
               actions: <Widget>[
                 IconButton(
-                  icon: Icon(ApIcon.codeIcon),
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      CupertinoPageRoute(
-                        builder: (_) => OpenSourcePage(
-                          setCurrentScreen: () =>
-                              FirebaseAnalyticsUtils.instance.setCurrentScreen(
-                                  "OpenSourcePage", "open_source_page.dart"),
-                        ),
+                  icon: Icon(ApIcon.info),
+                  onPressed: _showInformationDialog,
+                ),
+              ],
+              onImageTapped: (Announcement news) {
+                ApUtils.pushCupertinoStyle(
+                  context,
+                  AnnouncementContentPage(announcement: news),
+                );
+                String message = news.description.length > 12
+                    ? news.description
+                    : news.description.substring(0, 12);
+                FirebaseAnalyticsUtils.instance.logAction(
+                  'news_image',
+                  'click',
+                  message: message,
+                );
+              },
+              drawer: ApDrawer(
+                userInfo: userInfo,
+                widgets: <Widget>[
+                  ExpansionTile(
+                    initiallyExpanded: isStudyExpanded,
+                    onExpansionChanged: (bool) {
+                      setState(() => isStudyExpanded = bool);
+                    },
+                    leading: Icon(
+                      ApIcon.collectionsBookmark,
+                      color: isStudyExpanded
+                          ? ApTheme.of(context).blueAccent
+                          : ApTheme.of(context).grey,
+                    ),
+                    title: Text(ap.courseInfo, style: _defaultStyle),
+                    children: <Widget>[
+                      DrawerSubItem(
+                        icon: ApIcon.classIcon,
+                        title: ap.course,
+                        page: CoursePage(),
+                        needLogin: !isLogin,
                       ),
-                    );
-                    FirebaseAnalyticsUtils.instance
-                        .logAction('open_source', 'click');
-                  },
-                )
+                      DrawerSubItem(
+                        icon: ApIcon.assignment,
+                        title: ap.score,
+                        page: ScorePage(),
+                        needLogin: !isLogin,
+                      ),
+                    ],
+                  ),
+                  DrawerItem(
+                    icon: ApIcon.map,
+                    title: ap.schoolMap,
+                    page: SchoolMapPage(),
+                  ),
+                  DrawerItem(
+                    icon: ApIcon.face,
+                    title: ap.about,
+                    page: AboutUsPage(
+                      assetImage: ImageAssets.ntust,
+                      githubName: 'NKUST-ITC',
+                      email: 'abc873693@gmail.com',
+                      appLicense: app.aboutOpenSourceContent,
+                      fbFanPageId: '735951703168873',
+                      fbFanPageUrl: 'https://www.facebook.com/NKUST.ITC/',
+                      githubUrl: 'https://github.com/NKUST-ITC',
+                      logEvent: (name, value) => FirebaseAnalyticsUtils.instance
+                          .logAction(name, value),
+                      setCurrentScreen: () => FirebaseAnalyticsUtils.instance
+                          .setCurrentScreen(
+                              "AboutUsPage", "about_us_page.dart"),
+                      actions: <Widget>[
+                        IconButton(
+                          icon: Icon(ApIcon.codeIcon),
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              CupertinoPageRoute(
+                                builder: (_) => OpenSourcePage(
+                                  setCurrentScreen: () => FirebaseAnalyticsUtils
+                                      .instance
+                                      .setCurrentScreen("OpenSourcePage",
+                                          "open_source_page.dart"),
+                                ),
+                              ),
+                            );
+                            FirebaseAnalyticsUtils.instance
+                                .logAction('open_source', 'click');
+                          },
+                        )
+                      ],
+                    ),
+                  ),
+                  DrawerItem(
+                    icon: ApIcon.settings,
+                    title: ap.settings,
+                    page: SettingPage(),
+                  ),
+                  if (isLogin)
+                    ListTile(
+                      leading: Icon(
+                        ApIcon.powerSettingsNew,
+                        color: ApTheme.of(context).grey,
+                      ),
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        isLogin = false;
+                        Preferences.setBool(Constants.PREF_AUTO_LOGIN, false);
+                        // CourseHelper.instance.logout();
+                        // StuHelper.instance.logout();
+                        _checkLoginState();
+                      },
+                      title: Text(
+                        ap.logout,
+                        style: _defaultStyle,
+                      ),
+                    ),
+                ],
+                onTapHeader: () {
+                  if (isLogin) {
+                    if (userInfo != null) {
+                      Navigator.of(context).pop();
+                      ApUtils.pushCupertinoStyle(
+                        context,
+                        UserInfoPage(
+                          userInfo: userInfo,
+                        ),
+                      );
+                    }
+                  } else {
+                    Navigator.of(context).pop();
+                    _showLoginPage();
+                  }
+                },
+              ),
+              announcements: newsList,
+              onTabTapped: onTabTapped,
+              bottomNavigationBarItems: [
+                BottomNavigationBarItem(
+                  icon: Icon(ApIcon.classIcon),
+                  title: Text(ap.course),
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(ApIcon.assignment),
+                  title: Text(ap.score),
+                ),
               ],
             ),
-          ),
-          DrawerItem(
-            icon: ApIcon.settings,
-            title: ap.settings,
-            page: SettingPage(),
-          ),
-          if (isLogin)
-            ListTile(
-              leading: Icon(
-                ApIcon.powerSettingsNew,
-                color: ApTheme.of(context).grey,
-              ),
-              onTap: () {
-                Navigator.of(context).pop();
-                isLogin = false;
-                Preferences.setBool(Constants.PREF_AUTO_LOGIN, false);
-                CourseHelper.instance.logout();
-                StuHelper.instance.logout();
-                _checkLoginState();
-              },
-              title: Text(
-                ap.logout,
-                style: _defaultStyle,
-              ),
-            ),
         ],
-        onTapHeader: () {
-          if (isLogin) {
-            if (userInfo != null) {
-              Navigator.of(context).pop();
-              ApUtils.pushCupertinoStyle(
-                context,
-                UserInfoPage(
-                  userInfo: userInfo,
-                ),
-              );
-            }
-          } else {
-            Navigator.of(context).pop();
-            _showLoginPage();
-          }
-        },
       ),
-      announcements: newsList,
-      onTabTapped: onTabTapped,
-      bottomNavigationBarItems: [
-        BottomNavigationBarItem(
-          icon: Icon(ApIcon.classIcon),
-          title: Text(ap.course),
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(ApIcon.assignment),
-          title: Text(ap.score),
-        ),
-      ],
     );
   }
 
@@ -361,13 +402,10 @@ class HomePageState extends State<HomePage> {
     var start = DateTime.now();
     var username = Preferences.getString(Constants.PREF_USERNAME, '');
     var password = Preferences.getStringSecurity(Constants.PREF_PASSWORD, '');
-    var month = Preferences.getString(Constants.PREF_BIRTH_MONTH, '');
-    var day = Preferences.getString(Constants.PREF_BIRTH_DAY, '');
-    var idCard = Preferences.getStringSecurity(Constants.PREF_ID_CARD, '');
     var end = DateTime.now();
     print(
         'load preference time = ${end.millisecondsSinceEpoch - start.millisecondsSinceEpoch} ms');
-    CourseHelper.instance.login(
+    SsoHelper.instance.login(
       username: username,
       password: password,
       callback: GeneralCallback(
@@ -381,8 +419,7 @@ class HomePageState extends State<HomePage> {
               .showBasicHint(text: ApLocalizations.dioError(context, e));
         },
         onSuccess: (GeneralResponse data) async {
-          _homeKey.currentState.showBasicHint(text: ap.loginSuccess);
-          _getUserInfo();
+          // _getUserInfo();
           setState(() {
             isLogin = true;
           });
@@ -452,7 +489,8 @@ class HomePageState extends State<HomePage> {
       if (state != HomeState.finish) {
         _getAllAnnouncement();
       }
-      _getUserInfo();
+      //TODO Revert feature
+      // _getUserInfo();
       isLogin = true;
       _homeKey.currentState.hideSnackBar();
     } else {

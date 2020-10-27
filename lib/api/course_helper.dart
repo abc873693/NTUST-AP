@@ -194,36 +194,28 @@ class CourseHelper {
 
   Future<CourseData> getCourseTable({
     GeneralCallback<CourseData> callback,
+    String rawHtml,
   }) async {
-//    debugPrint('$BASE_PATH$COURSE');
+   // debugPrint(rawHtml);
     CourseData courseData = CourseData(
       courses: [],
       courseTables: CourseTables(),
     );
     try {
-      await checkLogin();
-      var response = await dio.get(
-        '$BASE_PATH$COURSE',
-        options: Options(
-          responseType: ResponseType.plain,
-          contentType: Headers.acceptHeader,
-        ),
-      );
-//      debugPrint('${response.data}');
-      final document = html.parse(response.data);
+      final document = html.parse(rawHtml);
       final title = document.getElementsByTagName('title');
       if (title.length != 0) {
         //檢查 title 是否有登入或Login詞 有代表登入逾時 如果沒有會是選課清單或Course List
         if (title.first.text.contains('登入') ||
             title.first.text.contains('Login')) {
-          var loginResponse = await login(
-            username: StuHelper.instance.username,
-            password: StuHelper.instance.password,
-          );
-          if (loginResponse == null)
-            callback.onError(GeneralResponse.unknownError());
-          else
-            return getCourseTable(callback: callback);
+          // var loginResponse = await login(
+          //   username: StuHelper.instance.username,
+          //   password: StuHelper.instance.password,
+          // );
+          // if (loginResponse == null)
+          //   callback.onError(GeneralResponse.unknownError());
+          // else
+          //   return getCourseTable(callback: callback);
         }
       }
       DateTime start = DateTime.now();
@@ -296,13 +288,7 @@ class CourseHelper {
       debugPrint(
           'parse time = ${end.millisecondsSinceEpoch - start.millisecondsSinceEpoch} ms');
       return callback != null ? callback.onSuccess(courseData) : courseData;
-    } on DioError catch (e) {
-      if (e.type == DioErrorType.RESPONSE) {
-        debugPrint('${e.response.statusCode}');
-        debugPrint(e.response.data);
-      }
-      callback?.onFailure(e);
-    } on Exception catch (e) {
+    } catch (e) {
       callback?.onError(GeneralResponse.unknownError());
       throw e;
     }
