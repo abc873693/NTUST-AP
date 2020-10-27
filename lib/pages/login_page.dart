@@ -6,7 +6,6 @@ import 'package:ap_common_firebase/utils/firebase_analytics_utils.dart';
 import 'package:ntust_ap/api/course_helper.dart';
 import 'package:ntust_ap/api/stu_helper.dart';
 import 'package:ntust_ap/config/constants.dart';
-import 'package:ntust_ap/utils/captcha_utils.dart';
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/general_response.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
@@ -167,14 +166,6 @@ class LoginPageState extends State<LoginPage> {
 
   void _getValidationCode() async {
     bodyBytes = await StuHelper.instance.getValidationImage();
-    setState(() {});
-    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-      _validationCode.text = await CaptchaUtils.extractByTfLite(
-        bodyBytes: bodyBytes,
-        type: SystemType.stu,
-      );
-      setState(() {});
-    }
   }
 
   _login() async {

@@ -13,7 +13,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:html/parser.dart' as html;
 import 'package:cookie_jar/cookie_jar.dart';
-import 'package:ntust_ap/utils/captcha_utils.dart';
 
 class StuHelper {
   static const BASE_PATH = 'https://stuinfo8.ntust.edu.tw';
@@ -115,15 +114,6 @@ class StuHelper {
   }) async {
     try {
       var bodyBytes;
-      if (validationCode == null) {
-        bodyBytes = await StuHelper.instance.getValidationImage();
-        if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-          validationCode = await CaptchaUtils.extractByTfLite(
-            bodyBytes: bodyBytes,
-            type: SystemType.stu,
-          );
-        }
-      }
       final option = Options(
         responseType: ResponseType.plain,
         contentType: Headers.formUrlEncodedContentType,

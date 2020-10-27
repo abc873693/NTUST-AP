@@ -15,7 +15,6 @@ import 'package:html/parser.dart' as html;
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:ntust_ap/api/stu_helper.dart';
 import 'package:ntust_ap/config/constants.dart';
-import 'package:ntust_ap/utils/captcha_utils.dart';
 
 class CourseHelper {
   static const BASE_PATH = 'https://courseselection.ntust.edu.tw';
@@ -104,13 +103,6 @@ class CourseHelper {
         responseType: ResponseType.plain,
         contentType: Headers.formUrlEncodedContentType,
       );
-      var bodyBytes = await CourseHelper.instance.getValidationImage();
-      if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-        validationCode = await CaptchaUtils.extractByTfLite(
-          bodyBytes: bodyBytes,
-          type: SystemType.course,
-        );
-      }
       final token = await getToken();
       var response = await dio.post(
         '$BASE_PATH$LOGIN',
