@@ -81,8 +81,6 @@ class HomePageState extends State<HomePage> {
     FirebaseAnalyticsUtils.instance
         .setCurrentScreen("HomePage", "home_page.dart");
     _getAllAnnouncement();
-    if (!Preferences.getBool(Constants.PREF_AUTO_LOGIN, false))
-      _checkLoginState();
     if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
       _checkUpdate();
     }
@@ -102,6 +100,21 @@ class HomePageState extends State<HomePage> {
     app = AppLocalizations.of(context);
     ap = ApLocalizations.of(context);
     return Scaffold(
+      floatingActionButton: kDebugMode ||
+              SsoHelper.state == SsoHelperState.needValidateCaptcha
+          ? FloatingActionButton(
+              onPressed: () {
+                setState(() {
+                  if (SsoHelper.state == SsoHelperState.needValidateCaptcha) {
+                    SsoHelper.state = SsoHelperState.done;
+                    _homeKey.currentState.showBasicHint(text: ap.loginSuccess);
+                    isLogin = true;
+                  } else
+                    SsoHelper.state = SsoHelperState.needValidateCaptcha;
+                });
+              },
+            )
+          : null,
       body: Stack(
         children: <Widget>[
           InAppWebView(
@@ -109,30 +122,31 @@ class HomePageState extends State<HomePage> {
             onWebViewCreated: (InAppWebViewController webViewController) {
               SsoHelper.webViewController = webViewController;
               SsoHelper.state = SsoHelperState.done;
+              ApUtils.showToast(context, '初始化中');
             },
             onJsPrompt: (controller, JsPromptRequest jsPromptRequest) {
               print(jsPromptRequest.defaultValue);
               return;
             },
-            onTitleChanged: (controller, text) async {
+            onPageCommitVisible: (controller, title) async {
               final path = await controller.getUrl();
-              if (path == SsoHelper.LOGIN) {
+              debugPrint('onPageCommitVisible $title $path');
+            },
+            onTitleChanged: (controller, title) async {
+              final path = await controller.getUrl();
+              debugPrint('onTitleChanged $title $path');
+            },
+            onLoadStop: (controller, title) async {
+              debugPrint('onLoadStop $title');
+              final path = await controller.getUrl();
+              if (SsoHelper.state == SsoHelperState.done &&
+                  path == SsoHelper.LOGIN) {
                 if (Preferences.getBool(Constants.PREF_AUTO_LOGIN, false))
                   _login();
+                else
+                  _checkLoginState();
               } else
-                setState(() {
-                  if (path == SsoHelper.COURSE_HOME) {
-                    if (Preferences.getBool(Constants.PREF_AUTO_LOGIN, false))
-                      _homeKey.currentState
-                          .showBasicHint(text: ap.loginSuccess);
-                    else
-                      ApUtils.showToast(context, ap.loginSuccess);
-                    SsoHelper.state = SsoHelperState.login;
-                    isLogin = true;
-                    _checkLoginState();
-                  }
-                });
-              print('$text $path');
+                SsoHelper.onTitleChange(controller, title);
             },
           ),
           if (SsoHelper.state != SsoHelperState.needValidateCaptcha)
@@ -399,6 +413,7 @@ class HomePageState extends State<HomePage> {
   }
 
   _login() async {
+    ApUtils.showToast(context, ap.logining);
     var start = DateTime.now();
     var username = Preferences.getString(Constants.PREF_USERNAME, '');
     var password = Preferences.getStringSecurity(Constants.PREF_PASSWORD, '');
@@ -410,9 +425,10 @@ class HomePageState extends State<HomePage> {
       password: password,
       callback: GeneralCallback(
         onError: (GeneralResponse e) async {
-          _homeKey.currentState.showBasicHint(
-            text: ap.unknownError,
-          );
+          setState(() {
+            SsoHelper.state = SsoHelperState.needValidateCaptcha;
+            ApUtils.showToast(context, '請點擊驗證碼');
+          });
         },
         onFailure: (DioError e) {
           _homeKey.currentState
@@ -420,6 +436,7 @@ class HomePageState extends State<HomePage> {
         },
         onSuccess: (GeneralResponse data) async {
           // _getUserInfo();
+          _homeKey.currentState.showBasicHint(text: ap.loginSuccess);
           setState(() {
             isLogin = true;
           });

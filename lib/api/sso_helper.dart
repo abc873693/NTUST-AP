@@ -9,6 +9,7 @@ enum SsoHelperState {
   done,
   needValidateCaptcha,
   login,
+  course,
 }
 
 class SsoHelper {
@@ -33,12 +34,47 @@ class SsoHelper {
     return _instance;
   }
 
+  static GeneralCallback<GeneralResponse> loginCallback;
+
+  static GeneralCallback<CourseData> courseCallback;
+
+  static Function(InAppWebViewController, String) onTitleChange =
+      (controller, title) async {
+    final path = await controller.getUrl();
+    switch (state) {
+      case SsoHelperState.loading:
+        break;
+      case SsoHelperState.done:
+        break;
+      case SsoHelperState.needValidateCaptcha:
+        break;
+      case SsoHelperState.login:
+        if (path == SsoHelper.COURSE_HOME) {
+          loginCallback.onSuccess(GeneralResponse.success());
+          loginCallback = null;
+        } else
+          loginCallback.onError(GeneralResponse.unknownError());
+        break;
+      case SsoHelperState.course:
+        if (path == SsoHelper.COURSE_TABLE) {
+          String html = await webViewController.getHtml();
+          await CourseHelper.instance.getCourseTable(
+            callback: courseCallback,
+            rawHtml: html,
+          );
+        } else
+          courseCallback.onError(GeneralResponse.unknownError());
+        break;
+    }
+  };
+
   Future<void> login({
     @required String username,
     @required String password,
-    String validationCode = '',
     GeneralCallback<GeneralResponse> callback,
   }) async {
+    loginCallback = callback;
+    state = SsoHelperState.login;
     await webViewController.clearCache();
     await webViewController.evaluateJavascript(
         source:
@@ -48,20 +84,15 @@ class SsoHelper {
             'document.getElementsByName("Password")[0].value = "$password"');
     await webViewController.evaluateJavascript(
         source: 'document.getElementById("btnLogIn").click()');
-    String url = await webViewController.getUrl();
-    print('login = $url');
-    callback.onSuccess(GeneralResponse.success());
+    await Future.delayed(Duration(seconds: 5));
+    loginCallback?.onError(GeneralResponse.unknownError());
   }
 
   Future<void> getCourseTable({
     GeneralCallback<CourseData> callback,
   }) async {
+    courseCallback = callback;
+    state = SsoHelperState.course;
     await webViewController.loadUrl(url: COURSE_TABLE);
-    await Future.delayed(Duration(seconds: 1));
-    String html = await webViewController.getHtml();
-    await CourseHelper.instance.getCourseTable(
-      callback: callback,
-      rawHtml: html,
-    );
   }
 }

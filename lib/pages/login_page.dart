@@ -185,7 +185,6 @@ class LoginPageState extends State<LoginPage> {
       SsoHelper.instance.login(
         username: _username.text,
         password: _password.text,
-        validationCode: _validationCode.text,
         callback: GeneralCallback<GeneralResponse>(
           onError: (GeneralResponse e) async {
             Navigator.pop(context);
