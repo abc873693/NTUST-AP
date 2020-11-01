@@ -101,6 +101,7 @@ class HomePageState extends State<HomePage> {
       floatingActionButton: kDebugMode ||
               SsoHelper.state == SsoHelperState.needValidateCaptcha
           ? FloatingActionButton(
+              child: Icon(Icons.done_outline),
               onPressed: () {
                 setState(() {
                   if (SsoHelper.state == SsoHelperState.needValidateCaptcha) {
