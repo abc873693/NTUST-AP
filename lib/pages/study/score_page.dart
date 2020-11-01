@@ -7,7 +7,7 @@ import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/widgets/hint_content.dart';
 import 'package:ap_common_firebase/utils/firebase_analytics_utils.dart';
 import 'package:flutter/material.dart';
-import 'package:ntust_ap/api/stu_helper.dart';
+import 'package:ntust_ap/api/sso_helper.dart';
 
 class ScorePage extends StatefulWidget {
   @override
@@ -112,7 +112,7 @@ class _ScorePageState extends State<ScorePage>
   }
 
   void _getScore() async {
-    StuHelper.instance.getScore(
+    SsoHelper.instance.getScores(
       callback: GeneralCallback(
         onFailure: (DioError e) {
           setState(() {

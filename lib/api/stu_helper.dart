@@ -281,64 +281,16 @@ class StuHelper {
 
   Future<Map<String, ScoreData>> getScore({
     GeneralCallback<Map<String, ScoreData>> callback,
+    String rawHtml,
   }) async {
     try {
-      var response = await dio.get(
-        '$BASE_PATH$SCORE',
-        options: Options(
-          responseType: ResponseType.plain,
-        ),
-      );
-//      debugPrint(response.data);
-      final document = html.parse(response.data);
-      if (document.outerHtml.contains('逾時') ||
-          document.outerHtml.contains('Time out')) {
-        var loginResponse = await login(
-          username: StuHelper.instance.username,
-          password: StuHelper.instance.password,
-          month: birthMonth,
-          day: birthDay,
-          idCard: idCardLast,
-        );
-        if (loginResponse == null)
-          callback.onError(GeneralResponse.unknownError());
-        else
-          return getScore(callback: callback);
-      }
+      final document = html.parse(rawHtml);
       Map<String, ScoreData> scoreDataMap = Map();
-      final currentScore = document.getElementById('Datagrid4');
-      var currentScores = List<Score>();
-      if (currentScore != null) {
-        var trs = currentScore.getElementsByTagName('tr');
-        for (var i = 1; i < trs.length; i++) {
-          var tds = trs[i].getElementsByTagName('td');
-//          print(tds[2].text);
-          currentScores.add(
-            Score(
-              courseNumber: tds[1].text,
-              title: tds[2].text,
-              units: tds[3].text,
-              middleScore: tds[3].text,
-              finalScore: tds[4].text.length > 5 ? '' : tds[4].text,
-              remark: tds[5].text + tds[6].text,
-            ),
-          );
-        }
-        final lastSemesterButton = document.getElementById('Button5');
-        String lastSemester;
-        if (lastSemesterButton != null) {
-          lastSemester = lastSemesterButton.attributes['value'].substring(0, 4);
-          if (scoreDataMap[lastSemester] == null && currentScores.length != 0)
-            scoreDataMap[lastSemester] = ScoreData(
-              scores: currentScores,
-              detail: Detail(),
-            );
-        }
-      }
-      final pastScore = document.getElementById('DataGrid1');
+      final tbodys = document.getElementsByTagName('tbody');
+      final pastScore = tbodys[1];
       if (pastScore != null) {
         var trs = pastScore.getElementsByTagName('tr');
-        for (var i = trs.length - 1; i > 0; i--) {
+        for (var i = 0; i < trs.length; i++) {
           var tds = trs[i].getElementsByTagName('td');
           String semester = tds[1].text.trim();
           if (scoreDataMap[semester] == null)
@@ -348,43 +300,36 @@ class StuHelper {
             );
           scoreDataMap[semester].scores.add(
                 Score(
-                  courseNumber: tds[2].text,
-                  title: tds[3].text,
-                  units: tds[4].text,
-                  middleScore: tds[4].text,
-                  finalScore: tds[5].text.length > 5 ? '' : tds[5].text,
-                  remark: tds[6].text + tds[7].text,
+                  courseNumber: tds[2].text.trim(),
+                  title: tds[3].text.trim(),
+                  units: tds[4].text.trim(),
+                  middleScore: tds[4].text.trim(),
+                  finalScore:
+                      tds[5].text.trim().length > 5 ? '' : tds[5].text.trim(),
+                  remark: tds[6].text.trim() + tds[7].text.trim(),
                 ),
               );
         }
       }
-      final scoreDetail = document
-          .getElementById('score_list')
-          .getElementsByTagName('font')
-          .first;
+      final scoreDetail = tbodys[0];
       if (scoreDetail != null) {
-        final ranks = scoreDetail.innerHtml.split('<br>');
-        final exp = RegExp(r"(.+)學年度第(.+)學期學期.+\((.+)\)排名為第(.+)名，學期平均成績為：(.+)");
-        for (var rank in ranks.reversed) {
-          if (rank.length == 0) continue;
-          final list = exp.allMatches(rank);
-          if (list != null && list.length != 0) {
-            final data = exp.allMatches(rank)?.first;
-            final semester = '${data.group(1).trim()}${data.group(2).trim()}';
-            if (scoreDataMap[semester] == null)
-              scoreDataMap[semester] = ScoreData(
-                scores: [],
-                detail: Detail(),
-              );
-            scoreDataMap[semester].detail
-              ..average = double.parse(data.group(5).trim());
-            final type = data.group(3).trim();
-            if (type == '系')
-              scoreDataMap[semester].detail.departmentRank =
-                  data.group(4).trim();
-            else if (type == '班')
-              scoreDataMap[semester].detail.classRank = data.group(4).trim();
-          }
+        var trs = scoreDetail.getElementsByTagName('tr');
+        for (var i = 0; i < trs.length; i++) {
+          var tds = trs[i].getElementsByTagName('td');
+          final semester = tds[0].text.trim();
+          print(tds[0].text.trim());
+          final detail = Detail(
+            classRank: tds[1].text.trim(),
+            departmentRank: tds[2].text.trim(),
+            average: double.parse(tds[3].text.trim()),
+          );
+          if (scoreDataMap[semester] == null)
+            scoreDataMap[semester] = ScoreData(
+              scores: [],
+              detail: detail,
+            );
+          else
+            scoreDataMap[semester].detail = detail;
         }
       }
       return callback == null

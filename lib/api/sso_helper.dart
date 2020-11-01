@@ -1,8 +1,10 @@
 import 'package:ap_common/models/course_data.dart';
 import 'package:ap_common/callback/general_callback.dart';
+import 'package:ap_common/models/score_data.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:ntust_ap/api/course_helper.dart';
+import 'package:ntust_ap/api/stu_helper.dart';
 
 enum SsoHelperState {
   loading,
@@ -10,13 +12,19 @@ enum SsoHelperState {
   needValidateCaptcha,
   login,
   course,
+  scores,
 }
 
 class SsoHelper {
   static const LOGIN =
       'https://stuinfosys.ntust.edu.tw/NTUSTSSOServ/SSO/Login/CourseSelection';
   static const COURSE_HOME = 'https://courseselection.ntust.edu.tw/';
+
   static const COURSE_TABLE = '${COURSE_HOME}ChooseList/D01/D01';
+
+  static const SCORE_HOME = 'https://stuinfosys.ntust.edu.tw/';
+  static const SCORE_ALL =
+      '${SCORE_HOME}StuScoreQueryServ/StuScoreQuery/DisplayAll';
 
   static SsoHelperState state = SsoHelperState.loading;
 
@@ -26,6 +34,7 @@ class SsoHelper {
 
   String username = '';
   String password = '';
+
 
   static SsoHelper get instance {
     if (_instance == null) {
@@ -37,6 +46,8 @@ class SsoHelper {
   static GeneralCallback<GeneralResponse> loginCallback;
 
   static GeneralCallback<CourseData> courseCallback;
+
+  static GeneralCallback<Map<String, ScoreData>> scoreCallback;
 
   static Function(InAppWebViewController, String) onTitleChange =
       (controller, title) async {
@@ -64,6 +75,16 @@ class SsoHelper {
           );
         } else
           courseCallback.onError(GeneralResponse.unknownError());
+        break;
+      case SsoHelperState.scores:
+        if (path == SsoHelper.SCORE_ALL) {
+          String html = await webViewController.getHtml();
+          await StuHelper.instance.getScore(
+            callback: scoreCallback,
+            rawHtml: html,
+          );
+        } else
+          scoreCallback.onError(GeneralResponse.unknownError());
         break;
     }
   };
@@ -94,5 +115,13 @@ class SsoHelper {
     courseCallback = callback;
     state = SsoHelperState.course;
     await webViewController.loadUrl(url: COURSE_TABLE);
+  }
+
+  Future<void> getScores({
+    GeneralCallback<Map<String, ScoreData>> callback,
+  }) async {
+    scoreCallback = callback;
+    state = SsoHelperState.scores;
+    await webViewController.loadUrl(url: SCORE_ALL);
   }
 }
