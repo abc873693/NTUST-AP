@@ -1,6 +1,7 @@
 import 'package:ap_common/models/course_data.dart';
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/score_data.dart';
+import 'package:ap_common/models/user_info.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:ntust_ap/api/course_helper.dart';
@@ -11,6 +12,7 @@ enum SsoHelperState {
   done,
   needValidateCaptcha,
   login,
+  userInfo,
   course,
   scores,
 }
@@ -18,8 +20,13 @@ enum SsoHelperState {
 class SsoHelper {
   static const LOGIN =
       'https://stuinfosys.ntust.edu.tw/NTUSTSSOServ/SSO/Login/CourseSelection';
-  static const COURSE_HOME = 'https://courseselection.ntust.edu.tw/';
 
+  static const USER_INFO_BASE = 'https://stuinfosys.ntust.edu.tw/';
+  static const USER_INFO_HOME = '${USER_INFO_BASE}StudentInformation/';
+  static const USER_INFO_SCHOOL =
+      '${USER_INFO_BASE}StudentInformation/Information';
+
+  static const COURSE_HOME = 'https://courseselection.ntust.edu.tw/';
   static const COURSE_TABLE = '${COURSE_HOME}ChooseList/D01/D01';
 
   static const SCORE_HOME = 'https://stuinfosys.ntust.edu.tw/';
@@ -35,7 +42,6 @@ class SsoHelper {
   String username = '';
   String password = '';
 
-
   static SsoHelper get instance {
     if (_instance == null) {
       _instance = SsoHelper();
@@ -44,6 +50,8 @@ class SsoHelper {
   }
 
   static GeneralCallback<GeneralResponse> loginCallback;
+
+  static GeneralCallback<UserInfo> userInfoCallback;
 
   static GeneralCallback<CourseData> courseCallback;
 
@@ -86,6 +94,19 @@ class SsoHelper {
         } else
           scoreCallback.onError(GeneralResponse.unknownError());
         break;
+      case SsoHelperState.userInfo:
+        if (path == USER_INFO_SCHOOL) {
+          String html = await webViewController.getHtml();
+          await StuHelper.instance.getUserInfo(
+            callback: userInfoCallback,
+            rawHtml: html,
+          );
+        } else if (path == USER_INFO_HOME) {
+          await webViewController.loadUrl(url: USER_INFO_SCHOOL);
+        } else {
+          userInfoCallback.onError(GeneralResponse.unknownError());
+        }
+        break;
     }
   };
 
@@ -107,6 +128,14 @@ class SsoHelper {
         source: 'document.getElementById("btnLogIn").click()');
     await Future.delayed(Duration(seconds: 5));
     loginCallback?.onError(GeneralResponse.unknownError());
+  }
+
+  Future<void> getUserInfo({
+    GeneralCallback<UserInfo> callback,
+  }) async {
+    userInfoCallback = callback;
+    state = SsoHelperState.userInfo;
+    await webViewController.loadUrl(url: USER_INFO_SCHOOL);
   }
 
   Future<void> getCourseTable({

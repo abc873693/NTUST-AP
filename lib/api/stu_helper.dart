@@ -235,41 +235,17 @@ class StuHelper {
 
   Future<UserInfo> getUserInfo({
     GeneralCallback<UserInfo> callback,
+    String rawHtml,
   }) async {
     try {
-      var response = await dio.get(
-        '$BASE_PATH$MENU',
-        options: Options(
-          responseType: ResponseType.plain,
+      final document = html.parse(rawHtml);
+      return callback?.onSuccess(
+        UserInfo(
+          id: document.getElementById('StudentNo').attributes['value'],
+          name: document.getElementById('StudentName').attributes['value'],
+          className: document.getElementById('Department').attributes['value'],
         ),
       );
-      final document = html.parse(response.data);
-      if (document.outerHtml.contains('逾時') ||
-          document.outerHtml.contains('Time out')) {
-        var loginResponse = await login(
-          username: StuHelper.instance.username,
-          password: StuHelper.instance.password,
-          month: birthMonth,
-          day: birthDay,
-          idCard: idCardLast,
-        );
-        if (loginResponse == null)
-          callback.onError(GeneralResponse.unknownError());
-        else
-          return getUserInfo(callback: callback);
-      }
-      final tBody = document.getElementsByTagName('tbody');
-      debugPrint('tbody len = ${tBody.length}');
-      if (tBody.length > 0) {
-        var tds = tBody[1].getElementsByTagName('td');
-        return callback?.onSuccess(
-          UserInfo(
-            id: tds[1].text,
-            name: tds[3].text,
-            className: tds[5].text,
-          ),
-        );
-      }
     } on DioError catch (e) {
       callback?.onFailure(e);
     } on Exception catch (e) {

@@ -435,7 +435,7 @@ class HomePageState extends State<HomePage> {
               .showBasicHint(text: ApLocalizations.dioError(context, e));
         },
         onSuccess: (GeneralResponse data) async {
-          // _getUserInfo();
+          _getUserInfo();
           _homeKey.currentState.showBasicHint(text: ap.loginSuccess);
           setState(() {
             isLogin = true;
@@ -446,7 +446,7 @@ class HomePageState extends State<HomePage> {
   }
 
   _getUserInfo() async {
-    StuHelper.instance.getUserInfo(
+    SsoHelper.instance.getUserInfo(
       callback: GeneralCallback(
         onFailure: (DioError e) {},
         onError: (GeneralResponse e) {},
