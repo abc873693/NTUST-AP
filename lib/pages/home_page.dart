@@ -22,13 +22,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:ntust_ap/api/course_helper.dart';
 import 'package:ntust_ap/api/sso_helper.dart';
 import 'package:ntust_ap/pages/school_map_page.dart';
 import 'package:package_info/package_info.dart';
 import 'package:ap_common/models/user_info.dart';
 import 'package:ap_common/widgets/yes_no_dialog.dart';
-import 'package:ntust_ap/api/stu_helper.dart';
 import 'package:ntust_ap/config/constants.dart';
 import 'package:ntust_ap/pages/setting_page.dart';
 import 'package:ntust_ap/pages/study/score_page.dart';
@@ -107,8 +105,10 @@ class HomePageState extends State<HomePage> {
                 setState(() {
                   if (SsoHelper.state == SsoHelperState.needValidateCaptcha) {
                     SsoHelper.state = SsoHelperState.done;
-                    _homeKey.currentState.showBasicHint(text: ap.loginSuccess);
                     isLogin = true;
+                    _homeKey?.currentState
+                        ?.showBasicHint(text: ap.loginSuccess);
+                    _getUserInfo();
                   } else
                     SsoHelper.state = SsoHelperState.needValidateCaptcha;
                 });
@@ -427,7 +427,7 @@ class HomePageState extends State<HomePage> {
         onError: (GeneralResponse e) async {
           setState(() {
             SsoHelper.state = SsoHelperState.needValidateCaptcha;
-            ApUtils.showToast(context, '請點擊驗證碼');
+            ApUtils.showToast(context, app.needValidateCaptcha);
           });
         },
         onFailure: (DioError e) {
@@ -502,16 +502,20 @@ class HomePageState extends State<HomePage> {
         builder: (_) => LoginPage(),
       ),
     );
-    if (result ?? false) {
+    if (result == null) {
+      _checkLoginState();
+    } else if (result) {
       if (state != HomeState.finish) {
         _getAllAnnouncement();
       }
-      //TODO Revert feature
-      // _getUserInfo();
+      _getUserInfo();
       isLogin = true;
       _homeKey.currentState.hideSnackBar();
     } else {
-      _checkLoginState();
+      setState(() {
+        SsoHelper.state = SsoHelperState.needValidateCaptcha;
+        ApUtils.showToast(context, app.needValidateCaptcha);
+      });
     }
   }
 }
