@@ -48,8 +48,6 @@ class HomePageState extends State<HomePage> {
   final GlobalKey<HomePageScaffoldState> _homeKey =
       GlobalKey<HomePageScaffoldState>();
 
-  InAppWebViewController webViewController;
-
   AppLocalizations app;
   ApLocalizations ap;
 
@@ -505,17 +503,20 @@ class HomePageState extends State<HomePage> {
     );
     if (result == null) {
       _checkLoginState();
-    } else if (result) {
+    } else if (result is bool && result) {
       if (state != HomeState.finish) {
         _getAllAnnouncement();
       }
       _getUserInfo();
       isLogin = true;
       _homeKey.currentState.hideSnackBar();
-    } else {
+    } else if (result is GeneralResponse) {
       setState(() {
         SsoHelper.state = SsoHelperState.needValidateCaptcha;
-        ApUtils.showToast(context, app.needValidateCaptcha);
+        if (result.statusCode == 4001)
+          ApUtils.showToast(context, app.needChangePassword);
+        else
+          ApUtils.showToast(context, app.needValidateCaptcha);
       });
     }
   }

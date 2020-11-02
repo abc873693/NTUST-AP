@@ -21,6 +21,8 @@ class AppLocalizations {
 
   String get needValidateCaptcha => _vocabularies['needValidateCaptcha'];
 
+  String get needChangePassword => _vocabularies['needChangePassword'];
+
   static AppLocalizations of(BuildContext context) {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
@@ -33,14 +35,17 @@ class AppLocalizations {
       'about_open_source_content':
           'https://github.com/abc873693/NTUST-AP\n\nThis project is licensed under the terms of the MIT license:\nThe MIT License (MIT)\n\nCopyright &#169; 2020 Rainvisitor\n\nThis project is Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.',
       'needValidateCaptcha':
-          'Need validate re-captcha\nWaiting enter course system after finish it, and click right-down button back to home page.',
+          'Need validate re-captcha\nWaiting enter school system after finish it, and click right-down button back to home page.',
+      'needChangePassword':
+          'Need finishing change password.\nWaiting enter school system after finish it, and click right-down button back to home page.',
     },
     'zh': {
       'app_name': '台科校務通',
       'update_note_content': '* 修復所有系統\n有任何問題可反映粉絲專頁~',
       'about_open_source_content':
           'https://github.com/abc873693/NTUST-AP\n\n本專案採MIT 開放原始碼授權：\nThe MIT License (MIT)\n\nCopyright &#169; 2020 Rainvisitor\n\nThis project is Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.',
-      'needValidateCaptcha': '需點擊機器人驗證\n完成後等待進入選課系統 並點擊右下角按鈕回到主畫面'
+      'needValidateCaptcha': '需點擊機器人驗證\n完成後等待進入學籍系統 並點擊右下角按鈕回到主畫面',
+      'needChangePassword': '需完成密碼修改\n完成後等待進入選課系統 並點擊右下角按鈕回到主畫面',
     },
   };
 }

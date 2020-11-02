@@ -20,6 +20,10 @@ enum SsoHelperState {
 class SsoHelper {
   static const LOGIN =
       'https://stuinfosys.ntust.edu.tw/NTUSTSSOServ/SSO/Login/CourseSelection';
+  static const CHANGE_PASSWORD =
+      'https://stuinfosys.ntust.edu.tw/NTUSTSSOServ/SSO/ChangePWD/CourseSelection?userName=';
+  static const LOGIN_ERROR =
+      'https://stuinfosys.ntust.edu.tw/NTUSTSSOServ/SSO/DoLogin';
 
   static const USER_INFO_BASE = 'https://stuinfosys.ntust.edu.tw/';
   static const USER_INFO_HOME = '${USER_INFO_BASE}StudentInformation/';
@@ -71,8 +75,23 @@ class SsoHelper {
         if (path == SsoHelper.COURSE_HOME) {
           loginCallback.onSuccess(GeneralResponse.success());
           loginCallback = null;
-        } else
+        } else if (path.contains(SsoHelper.CHANGE_PASSWORD))
+          loginCallback.onError(
+            GeneralResponse(
+              message: 'need change password',
+              statusCode: 4001,
+            ),
+          );
+        else if (path == SsoHelper.LOGIN_ERROR)
+          loginCallback.onError(
+            GeneralResponse(
+              message: 'login error',
+              statusCode: 4000,
+            ),
+          );
+        else
           loginCallback.onError(GeneralResponse.unknownError());
+        loginCallback = null;
         break;
       case SsoHelperState.course:
         if (path == SsoHelper.COURSE_TABLE) {
@@ -117,15 +136,14 @@ class SsoHelper {
   }) async {
     loginCallback = callback;
     state = SsoHelperState.login;
-    await webViewController.clearCache();
     await webViewController.evaluateJavascript(
         source:
-            'document.getElementsByName("UserName")[0].value = "$username";document.getElementsByName("password")[0].value = "nick2000";document.getElementById("btnLogIn").click();');
+            'document.getElementsByName("UserName")[0].value = "$username";');
     await webViewController.evaluateJavascript(
         source:
-            'document.getElementsByName("Password")[0].value = "$password"');
+            'document.getElementsByName("Password")[0].value = "$password";');
     await webViewController.evaluateJavascript(
-        source: 'document.getElementById("btnLogIn").click()');
+        source: 'document.getElementById("btnLogIn").click();');
     await Future.delayed(Duration(seconds: 5));
     loginCallback?.onError(GeneralResponse.unknownError());
   }

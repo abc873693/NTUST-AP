@@ -188,7 +188,10 @@ class LoginPageState extends State<LoginPage> {
         callback: GeneralCallback<GeneralResponse>(
           onError: (GeneralResponse e) async {
             Navigator.pop(context);
-            Navigator.pop(context, false);
+            if (e.statusCode == 4000)
+              ApUtils.showToast(context, app.loginFail);
+            else
+              Navigator.pop(context, e);
           },
           onFailure: (DioError e) {
             Navigator.pop(context);
