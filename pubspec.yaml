@@ -28,7 +28,7 @@ dependencies:
   dio_cookie_manager: 1.0.0
   image: ^2.1.18
   html: ^0.14.0+4
-  flutter_inappwebview: 4.0.0+4
+  flutter_inappwebview: 4.0.0
 
 dev_dependencies:
   flutter_test:
