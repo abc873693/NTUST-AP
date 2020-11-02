@@ -1,6 +1,6 @@
 name: ntust_ap
 description: A new Flutter application.
-version: 0.2.2+22
+version: 0.2.3+203
 
 environment:
   sdk: ">=2.6.0 <3.0.0"
