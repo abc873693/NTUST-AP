@@ -294,6 +294,7 @@ class StuHelper {
           var tds = trs[i].getElementsByTagName('td');
           final semester = tds[0].text.trim();
           print(tds[0].text.trim());
+          if (tds[0].text.trim() == '查無資料') continue;
           final detail = Detail(
             classRank: tds[1].text.trim(),
             departmentRank: tds[2].text.trim(),
