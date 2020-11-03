@@ -1,3 +1,4 @@
+import 'package:ap_common/models/ap_support_language.dart';
 import 'package:ap_common/models/course_data.dart';
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/score_data.dart';
@@ -32,6 +33,7 @@ class SsoHelper {
 
   static const COURSE_HOME = 'https://courseselection.ntust.edu.tw/';
   static const COURSE_TABLE = '${COURSE_HOME}ChooseList/D01/D01';
+  static const COURSE_SET_LANGUAGE = '${COURSE_HOME}Home/SetCulture?Culture=';
 
   static const SCORE_HOME = 'https://stuinfosys.ntust.edu.tw/';
   static const SCORE_ALL =
@@ -162,6 +164,11 @@ class SsoHelper {
     courseCallback = callback;
     state = SsoHelperState.course;
     await webViewController.loadUrl(url: COURSE_TABLE);
+  }
+
+  Future<void> setLanguage(String languageCode) async {
+    if (languageCode == ApSupportLanguageConstants.ZH) languageCode = 'zh-TW';
+    await webViewController.loadUrl(url: COURSE_SET_LANGUAGE + languageCode);
   }
 
   Future<void> getScores({

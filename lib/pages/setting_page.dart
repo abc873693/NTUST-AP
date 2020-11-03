@@ -9,6 +9,7 @@ import 'package:ap_common_firebase/constants/fiirebase_constants.dart';
 import 'package:ap_common_firebase/utils/firebase_analytics_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:ntust_ap/api/course_helper.dart';
+import 'package:ntust_ap/api/sso_helper.dart';
 import 'package:ntust_ap/config/constants.dart';
 import 'package:ntust_ap/utils/app_localizations.dart';
 import 'package:ntust_ap/widgets/share_data_widget.dart';
@@ -98,7 +99,7 @@ class SettingPageState extends State<SettingPage> {
                           );
                           break;
                       }
-                      CourseHelper.instance.setLanguage(code);
+                      SsoHelper.instance.setLanguage(locale.languageCode);
                       Preferences.setString(Constants.PREF_LANGUAGE_CODE, code);
                       setState(() {
                         AppLocalizationsDelegate().load(locale);
