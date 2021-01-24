@@ -22,6 +22,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:ntust_ap/api/course_helper.dart';
 import 'package:ntust_ap/api/sso_helper.dart';
 import 'package:ntust_ap/pages/school_map_page.dart';
 import 'package:package_info/package_info.dart';
@@ -50,6 +51,8 @@ class HomePageState extends State<HomePage> {
 
   AppLocalizations app;
   ApLocalizations ap;
+
+  CookieManager _cookieManager = CookieManager.instance();
 
   HomeState state = HomeState.loading;
 
@@ -138,6 +141,23 @@ class HomePageState extends State<HomePage> {
             onLoadStop: (controller, title) async {
               debugPrint('onLoadStop $title');
               final path = await controller.getUrl();
+              if (path == SsoHelper.COURSE_HOME) {
+                final cookies =
+                    await _cookieManager.getCookies(url: SsoHelper.COURSE_HOME);
+                cookies.forEach(
+                  (element) {
+                    CourseHelper.instance.setCookie(
+                      path,
+                      cookieName: element.name,
+                      cookieValue: element.value,
+                      cookieDomain: element.domain,
+                    );
+                    if (kDebugMode)
+                      print(
+                          "Cookie: ${element.name}: ${element.value} ${element.domain} ${element.expiresDate} \n");
+                  },
+                );
+              }
               if (SsoHelper.state == SsoHelperState.done &&
                   path == SsoHelper.LOGIN) {
                 if (Preferences.getBool(Constants.PREF_AUTO_LOGIN, false))

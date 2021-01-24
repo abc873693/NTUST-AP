@@ -123,7 +123,7 @@ class _CoursePageState extends State<CoursePage> {
   }
 
   void _getCourse() async {
-    SsoHelper.instance.getCourseTable(
+    CourseHelper.instance.getCourseTable(
       callback: GeneralCallback(
         onSuccess: (CourseData data) {
           if (mounted) {

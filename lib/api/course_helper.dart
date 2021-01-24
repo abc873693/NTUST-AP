@@ -13,7 +13,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:html/parser.dart' as html;
 import 'package:cookie_jar/cookie_jar.dart';
-import 'package:ntust_ap/api/stu_helper.dart';
 import 'package:ntust_ap/config/constants.dart';
 
 class CourseHelper {
@@ -36,7 +35,16 @@ class CourseHelper {
   static CourseHelper get instance {
     if (_instance == null) {
       _instance = CourseHelper();
-      dio = Dio();
+      dio = Dio(
+        BaseOptions(
+          baseUrl: BASE_PATH,
+          followRedirects: false,
+          headers: {
+            "user-agent":
+                "Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148",
+          },
+        ),
+      );
       initCookiesJar();
       _instance.setLanguage(
         Preferences.getString(
@@ -50,6 +58,20 @@ class CourseHelper {
     cookieJar = CookieJar();
     dio.interceptors.add(CookieManager(cookieJar));
     cookieJar.loadForRequest(Uri.parse(BASE_PATH));
+  }
+
+  void setCookie(
+    String url, {
+    String cookieName,
+    String cookieValue,
+    String cookieDomain,
+  }) {
+    Cookie _tempCookie = Cookie(cookieName, cookieValue);
+    _tempCookie.domain = cookieDomain;
+    cookieJar.saveFromResponse(
+      Uri.parse(url),
+      [_tempCookie],
+    );
   }
 
   void logout() {
@@ -194,14 +216,14 @@ class CourseHelper {
 
   Future<CourseData> getCourseTable({
     GeneralCallback<CourseData> callback,
-    String rawHtml,
   }) async {
-   // debugPrint(rawHtml);
     CourseData courseData = CourseData(
       courses: [],
       courseTables: CourseTables(),
     );
     try {
+      final response = await dio.get(COURSE);
+      final rawHtml = response.data;
       final document = html.parse(rawHtml);
       final title = document.getElementsByTagName('title');
       if (title.length != 0) {

@@ -100,7 +100,6 @@ class SsoHelper {
           String html = await webViewController.getHtml();
           await CourseHelper.instance.getCourseTable(
             callback: courseCallback,
-            rawHtml: html,
           );
         } else
           courseCallback.onError(GeneralResponse.unknownError());
