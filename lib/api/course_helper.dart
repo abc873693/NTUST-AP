@@ -217,98 +217,10 @@ class CourseHelper {
   Future<CourseData> getCourseTable({
     GeneralCallback<CourseData> callback,
   }) async {
-    CourseData courseData = CourseData(
-      courses: [],
-      courseTables: CourseTables(),
-    );
     try {
       final response = await dio.get(COURSE);
       final rawHtml = response.data;
-      final document = html.parse(rawHtml);
-      final title = document.getElementsByTagName('title');
-      if (title.length != 0) {
-        //檢查 title 是否有登入或Login詞 有代表登入逾時 如果沒有會是選課清單或Course List
-        if (title.first.text.contains('登入') ||
-            title.first.text.contains('Login')) {
-          // var loginResponse = await login(
-          //   username: StuHelper.instance.username,
-          //   password: StuHelper.instance.password,
-          // );
-          // if (loginResponse == null)
-          //   callback.onError(GeneralResponse.unknownError());
-          // else
-          //   return getCourseTable(callback: callback);
-        }
-      }
-      DateTime start = DateTime.now();
-      final tBody = document.getElementsByTagName('tbody');
-      debugPrint('tbody len = ${tBody.length}');
-      if (tBody.length > 0) {
-        //選課清單
-        var trs = tBody[2].getElementsByTagName('tr');
-        for (var i = 1; i < trs.length; i++) {
-          final td = trs[i].getElementsByTagName('td');
-          var title = td[1].text.trim();
-          courseData.courses.add(
-            CourseDetail(
-              code: td[0].text,
-              title: title,
-              units: td[2].text,
-              required: td[3].getElementsByTagName('span').first.text,
-              instructors: [td[4].text],
-              times: '',
-            ),
-          );
-        }
-        courseData.courseTables.timeCode = [];
-        trs = tBody[3].getElementsByTagName('tr');
-        //      debugPrint('trs len = ${trs.length}');
-        final emptyLength = 13;
-        for (var i = 1; i < trs.length; i++) {
-          final td = trs[i].getElementsByTagName('td');
-          final section = td[0].text;
-          final times = td[1].text.split(String.fromCharCode(10));
-          courseData.courseTables.timeCode.add(section);
-          for (var weekIndex = 0;
-              weekIndex < courseData.courseTables.weeks.length;
-              weekIndex++) {
-            if (td[weekIndex + 2].text.length > emptyLength)
-              courseData.courseTables.weeks[weekIndex].add(
-                parseCourse(
-                  title: td[weekIndex + 2].text,
-                  date: Date(
-                    section: section,
-                    startTime: times[1].trim().replaceAll('～', ''),
-                    endTime: times[2].trim(),
-                  ),
-                  courseData: courseData,
-                ),
-              );
-          }
-        }
-        for (var i = 0; i < courseData.courses.length; i++) {
-          final courseDetail = courseData.courses[i];
-          for (var weekIndex = 0;
-              weekIndex < courseData.courseTables.weeks.length;
-              weekIndex++) {
-            List<String> sections = [];
-            for (var course in courseData.courseTables.weeks[weekIndex]) {
-              if (course.title == courseDetail.title) {
-                sections.add(course.date.section);
-                course.detailIndex = i;
-              }
-            }
-            if (sections.length > 0) {
-              courseDetail.times +=
-                  "(${ApLocalizations.instance.weekdaysCourse[weekIndex]}) ";
-              sections.forEach((section) => courseDetail.times += '$section ');
-            }
-          }
-        }
-      }
-      DateTime end = DateTime.now();
-      debugPrint(
-          'parse time = ${end.millisecondsSinceEpoch - start.millisecondsSinceEpoch} ms');
+      final courseData = CourseParser.courseTable(rawHtml);
       return callback != null ? callback.onSuccess(courseData) : courseData;
     } catch (e) {
       callback?.onError(GeneralResponse.unknownError());
@@ -317,7 +229,118 @@ class CourseHelper {
     return null;
   }
 
-  Course parseCourse({
+  Future<void> checkLogin() async {
+//    debugPrint('$BASE_PATH$COURSE');
+    DateTime start = DateTime.now();
+    var response = await dio.get(
+      '$BASE_PATH',
+      options: Options(
+        responseType: ResponseType.plain,
+      ),
+    );
+    DateTime end = DateTime.now();
+    debugPrint(
+        'checkLogin time = ${end.millisecondsSinceEpoch - start.millisecondsSinceEpoch} ms');
+//    debugPrint(response.data);
+  }
+}
+
+class CourseParser {
+  static CourseData courseTable(String rawHtml) {
+    CourseData courseData = CourseData(
+      courses: [],
+      courseTables: CourseTables(),
+    );
+    final document = html.parse(rawHtml);
+    final title = document.getElementsByTagName('title');
+    if (title.length != 0) {
+      //檢查 title 是否有登入或Login詞 有代表登入逾時 如果沒有會是選課清單或Course List
+      if (title.first.text.contains('登入') ||
+          title.first.text.contains('Login')) {
+        // var loginResponse = await login(
+        //   username: StuHelper.instance.username,
+        //   password: StuHelper.instance.password,
+        // );
+        // if (loginResponse == null)
+        //   callback.onError(GeneralResponse.unknownError());
+        // else
+        //   return getCourseTable(callback: callback);
+      }
+      //TODO error handle
+    }
+    DateTime start = DateTime.now();
+    final tBody = document.getElementsByTagName('tbody');
+    debugPrint('tbody len = ${tBody.length}');
+    if (tBody.length > 0) {
+      //選課清單
+      var trs = tBody[2].getElementsByTagName('tr');
+      for (var i = 1; i < trs.length; i++) {
+        final td = trs[i].getElementsByTagName('td');
+        var title = td[1].text.trim();
+        courseData.courses.add(
+          CourseDetail(
+            code: td[0].text,
+            title: title,
+            units: td[2].text,
+            required: td[3].getElementsByTagName('span').first.text,
+            instructors: [td[4].text],
+            times: '',
+          ),
+        );
+      }
+      courseData.courseTables.timeCode = [];
+      trs = tBody[3].getElementsByTagName('tr');
+      //      debugPrint('trs len = ${trs.length}');
+      final emptyLength = 13;
+      for (var i = 1; i < trs.length; i++) {
+        final td = trs[i].getElementsByTagName('td');
+        final section = td[0].text;
+        final times = td[1].text.split(String.fromCharCode(10));
+        courseData.courseTables.timeCode.add(section);
+        for (var weekIndex = 0;
+            weekIndex < courseData.courseTables.weeks.length;
+            weekIndex++) {
+          if (td[weekIndex + 2].text.length > emptyLength)
+            courseData.courseTables.weeks[weekIndex].add(
+              _parseCourse(
+                title: td[weekIndex + 2].text,
+                date: Date(
+                  section: section,
+                  startTime: times[1].trim().replaceAll('～', ''),
+                  endTime: times[2].trim(),
+                ),
+                courseData: courseData,
+              ),
+            );
+        }
+      }
+      for (var i = 0; i < courseData.courses.length; i++) {
+        final courseDetail = courseData.courses[i];
+        for (var weekIndex = 0;
+            weekIndex < courseData.courseTables.weeks.length;
+            weekIndex++) {
+          List<String> sections = [];
+          for (var course in courseData.courseTables.weeks[weekIndex]) {
+            if (course.title == courseDetail.title) {
+              sections.add(course.date.section);
+              course.detailIndex = i;
+            }
+          }
+          if (sections.length > 0) {
+            courseDetail.times +=
+                "(${ApLocalizations.instance.weekdaysCourse[weekIndex]}) ";
+            sections.forEach((section) => courseDetail.times += '$section ');
+          }
+        }
+      }
+    }
+    DateTime end = DateTime.now();
+    debugPrint(
+        'parse time = ${end.millisecondsSinceEpoch - start.millisecondsSinceEpoch} ms');
+    return courseData;
+  }
+
+  static Course _parseCourse({
     String title,
     Date date,
     CourseData courseData,
@@ -337,20 +360,5 @@ class CourseHelper {
       courseData.courses[index].location = course.location;
     }
     return course;
-  }
-
-  Future<void> checkLogin() async {
-//    debugPrint('$BASE_PATH$COURSE');
-    DateTime start = DateTime.now();
-    var response = await dio.get(
-      '$BASE_PATH',
-      options: Options(
-        responseType: ResponseType.plain,
-      ),
-    );
-    DateTime end = DateTime.now();
-    debugPrint(
-        'checkLogin time = ${end.millisecondsSinceEpoch - start.millisecondsSinceEpoch} ms');
-//    debugPrint(response.data);
   }
 }

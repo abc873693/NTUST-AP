@@ -98,9 +98,12 @@ class SsoHelper {
       case SsoHelperState.course:
         if (path == SsoHelper.COURSE_TABLE) {
           String html = await webViewController.getHtml();
-          await CourseHelper.instance.getCourseTable(
-            callback: courseCallback,
-          );
+          try {
+            final courseData = CourseParser.courseTable(html);
+            courseCallback.onSuccess(courseData);
+          } catch (e) {
+            courseCallback.onError(GeneralResponse.unknownError());
+          }
         } else
           courseCallback.onError(GeneralResponse.unknownError());
         break;
